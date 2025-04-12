@@ -1,0 +1,7 @@
+- add pylint
+- add black
+- add dashboard in assets
+- readme
+- docker 
+- add assets folder
+- embed plots in findings.md

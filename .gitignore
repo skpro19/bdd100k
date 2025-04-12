@@ -1,3 +1,4 @@
 # folders
 data/**  
 .vscode/**
+__pycache__/** 
