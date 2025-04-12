@@ -10,15 +10,22 @@ The key observations are:
 *   **Significant Class Imbalance:** There is a large imbalance in the dataset. The 'car' class dominates both splits, accounting for over 55% of all instances. Classes like 'traffic sign' and 'traffic light' are the next most frequent, while classes such as 'train', 'motor', 'rider', and 'bike' are significantly less common (often < 1%). This imbalance could affect model training and evaluation, potentially leading to bias towards more frequent classes.
 *   **Similar Train/Validation Distributions:** The relative frequencies of classes are highly consistent between the training and validation sets. This suggests the validation set is a representative sample of the training data in terms of class distribution, which is good for reliable evaluation.
 
-Below are bar charts showing the percentage distribution for each class in the training and validation sets.
+Below are bar charts showing the percentage distribution for each class in the training and validation sets, side-by-side for comparison.
 
-### Training Set Class Distribution (% - Bar Chart)
-
-![Training Set Class Distribution (%)](assets/class_distribution_train_bar_pct.png)
-
-### Validation Set Class Distribution (% - Bar Chart)
-
-![Validation Set Class Distribution (%)](assets/class_distribution_val_bar_pct.png)
+<table>
+  <tr>
+    <th align="center">Training Set Class Distribution (%)</th>
+    <th align="center">Validation Set Class Distribution (%)</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="assets/class_distribution_train_bar_pct.png" alt="Training Set Class Distribution (%)" width="450"/>
+    </td>
+    <td align="center">
+      <img src="assets/class_distribution_val_bar_pct.png" alt="Validation Set Class Distribution (%)" width="450"/>
+    </td>
+  </tr>
+</table>
 
 ## Image Attribute Analysis
 
@@ -30,31 +37,52 @@ The distribution of image-level attributes (weather, scene, time of day) was ana
 
 The distributions are very similar between the training and validation sets, indicating consistency in environmental conditions across the splits. These distributions are important as model performance might vary significantly depending on these conditions.
 
-Below are bar charts showing the percentage distribution for each attribute in both sets:
+Below are bar charts showing the percentage distribution for each attribute in both sets, side-by-side for comparison.
 
-### Weather Distribution (Training Set %)
+<table>
+  <tr>
+    <th align="center">Weather Distribution (Training Set %)</th>
+    <th align="center">Weather Distribution (Validation Set %)</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="assets/image_attr_weather_dist_train.png" alt="Weather Distribution (Training Set %)" width="450"/>
+    </td>
+    <td align="center">
+      <img src="assets/image_attr_weather_dist_val.png" alt="Weather Distribution (Validation Set %)" width="450"/>
+    </td>
+  </tr>
+</table>
 
-![Weather Distribution (Training Set %)](assets/image_attr_weather_dist_train.png)
+<table>
+  <tr>
+    <th align="center">Scene Distribution (Training Set %)</th>
+    <th align="center">Scene Distribution (Validation Set %)</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="assets/image_attr_scene_dist_train.png" alt="Scene Distribution (Training Set %)" width="450"/>
+    </td>
+    <td align="center">
+      <img src="assets/image_attr_scene_dist_val.png" alt="Scene Distribution (Validation Set %)" width="450"/>
+    </td>
+  </tr>
+</table>
 
-### Weather Distribution (Validation Set %)
-
-![Weather Distribution (Validation Set %)](assets/image_attr_weather_dist_val.png)
-
-### Scene Distribution (Training Set %)
-
-![Scene Distribution (Training Set %)](assets/image_attr_scene_dist_train.png)
-
-### Scene Distribution (Validation Set %)
-
-![Scene Distribution (Validation Set %)](assets/image_attr_scene_dist_val.png)
-
-### Time of Day Distribution (Training Set %)
-
-![Time of Day Distribution (Training Set %)](assets/image_attr_timeofday_dist_train.png)
-
-### Time of Day Distribution (Validation Set %)
-
-![Time of Day Distribution (Validation Set %)](assets/image_attr_timeofday_dist_val.png)
+<table>
+  <tr>
+    <th align="center">Time of Day Distribution (Training Set %)</th>
+    <th align="center">Time of Day Distribution (Validation Set %)</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="assets/image_attr_timeofday_dist_train.png" alt="Time of Day Distribution (Training Set %)" width="450"/>
+    </td>
+    <td align="center">
+      <img src="assets/image_attr_timeofday_dist_val.png" alt="Time of Day Distribution (Validation Set %)" width="450"/>
+    </td>
+  </tr>
+</table>
 
 ## Object Attribute Analysis
 
@@ -65,23 +93,37 @@ The distribution of object-level boolean attributes (`occluded`, `truncated`) wa
 
 Understanding the prevalence of these attributes is important for interpreting model performance, as occluded and truncated objects are typically harder to detect accurately. The consistency between train and validation sets is good for evaluation.
 
-Below are bar charts showing the percentage distribution for these attributes in both sets:
+Below are bar charts showing the percentage distribution for these attributes in both sets, side-by-side for comparison.
 
-### Occlusion Distribution (Training Set %)
+<table>
+  <tr>
+    <th align="center">Occlusion Distribution (Training Set %)</th>
+    <th align="center">Occlusion Distribution (Validation Set %)</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="assets/object_attr_occluded_dist_train.png" alt="Occlusion Distribution (Training Set %)" width="450"/>
+    </td>
+    <td align="center">
+      <img src="assets/object_attr_occluded_dist_val.png" alt="Occlusion Distribution (Validation Set %)" width="450"/>
+    </td>
+  </tr>
+</table>
 
-![Occlusion Distribution (Training Set %)](assets/object_attr_occluded_dist_train.png)
-
-### Occlusion Distribution (Validation Set %)
-
-![Occlusion Distribution (Validation Set %)](assets/object_attr_occluded_dist_val.png)
-
-### Truncation Distribution (Training Set %)
-
-![Truncation Distribution (Training Set %)](assets/object_attr_truncated_dist_train.png)
-
-### Truncation Distribution (Validation Set %)
-
-![Truncation Distribution (Validation Set %)](assets/object_attr_truncated_dist_val.png)
+<table>
+  <tr>
+    <th align="center">Truncation Distribution (Training Set %)</th>
+    <th align="center">Truncation Distribution (Validation Set %)</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="assets/object_attr_truncated_dist_train.png" alt="Truncation Distribution (Training Set %)" width="450"/>
+    </td>
+    <td align="center">
+      <img src="assets/object_attr_truncated_dist_val.png" alt="Truncation Distribution (Validation Set %)" width="450"/>
+    </td>
+  </tr>
+</table>
 
 ## Bounding Box Area Analysis
 
@@ -92,11 +134,20 @@ To understand the relative screen space occupied by different object classes, th
 
 This perspective is useful for understanding potential biases in evaluation metrics that might be influenced by object size. The consistency between sets suggests this size characteristic is stable.
 
-### Total Pixel Area per Class (Training Set Treemap)
+Below are the treemaps for both sets, side-by-side for comparison.
 
-![Total Pixel Area per Class (Training Set Treemap)](assets/class_total_area_treemap_train.png)
-
-### Total Pixel Area per Class (Validation Set Treemap)
-
-![Total Pixel Area per Class (Validation Set Treemap)](assets/class_total_area_treemap_val.png)
+<table>
+  <tr>
+    <th align="center">Total Pixel Area per Class (Training Set Treemap)</th>
+    <th align="center">Total Pixel Area per Class (Validation Set Treemap)</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="assets/class_total_area_treemap_train.png" alt="Total Pixel Area per Class (Training Set Treemap)" width="450"/>
+    </td>
+    <td align="center">
+      <img src="assets/class_total_area_treemap_val.png" alt="Total Pixel Area per Class (Validation Set Treemap)" width="450"/>
+    </td>
+  </tr>
+</table>
 
