@@ -1,0 +1,7 @@
+---
+description: General guidelines about the project
+globs: * 
+---
+# General Guidelines
+* [goals.md](mdc:goals.md) contains information about the project goals. 
+* [tree.md](mdc:tree.md) contains information about the project structure.

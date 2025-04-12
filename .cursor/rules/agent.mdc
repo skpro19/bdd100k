@@ -1,0 +1,31 @@
+---
+description: Guidelines for the Composer Agent Mode
+globs: 
+---
+# What? 
+This is a general set of guidelines for the Composer Agent. 
+
+
+# Important Guidelines
+* Try to actively use the terminal.
+* Try to breakdown tasks in such a way that we can test them along the way. 
+* Ask to test changes made at each step to the user.
+* Refer to [tree.md](mdc:tree.md) before executing scripts. 
+* Refer [plan.md](mdc:plan.md) to get a rough of pending / finished tasks.
+* Follow PEP8 coding standard
+
+# General Guidelines
+* Do not implement stuff unless explicitly asked for.
+* Come up with detailed plans when asked for advice or suggestions.
+* Try to add one feature at a time, test and verify it, and then move for the next one.
+* While debugging issues, try to run the target script itself instead of asking the user.
+
+
+# Coding Guidelines
+* Try to actively use the terminal. 
+* Try to test the changes at each step.
+* Write detailed docstring for function
+* Always use typehint when possible
+* Use comments only when necessary
+* Prefer using the logging module over the built-in print 
+
