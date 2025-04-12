@@ -4,8 +4,8 @@ import os
 from collections import Counter
 from typing import Dict, List, Any, Set, Counter
 
-# Import the plotting function from vis.py
-from vis import plot_class_distribution
+# Import the plotting functions from vis.py
+from vis import plot_class_distribution, plot_combined_pie_charts
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -124,22 +124,42 @@ def main() -> None:
     else:
         logging.error("Could not load or process validation data. Skipping analysis.")
 
-    # Visualization step - Individual Plots (using function from vis.py)
+    # Visualization step - Generate Bar charts (percentage) AND Combined Pie chart
     logging.info("--- Starting Visualization --- ")
     if train_counts:
+        # Bar chart (Train) with percentages
         plot_class_distribution(train_counts, 
-                                title="Object Detection Class Distribution (Training Set)", 
-                                output_filename="class_distribution_train.png")
+                                title="Object Detection Class Distribution (Training Set - Percentage)", 
+                                output_filename="class_distribution_train_bar_pct.png")
     else:
-        logging.warning("No training counts available for visualization.")
+        logging.warning("No training counts available for Bar visualization.")
         
     if val_counts:
+        # Bar chart (Validation) with percentages
         plot_class_distribution(val_counts, 
-                                title="Object Detection Class Distribution (Validation Set)", 
-                                output_filename="class_distribution_val.png")
+                                title="Object Detection Class Distribution (Validation Set - Percentage)", 
+                                output_filename="class_distribution_val_bar_pct.png")
     else:
-        logging.warning("No validation counts available for visualization.")
+        logging.warning("No validation counts available for Bar visualization.")
+
+    # Combined Pie chart (Train & Validation) - Regenerate
+    if train_counts or val_counts:
+        plot_combined_pie_charts(train_counts, val_counts,
+                                 title="Object Detection Class Distribution Comparison (Pie Charts)",
+                                 output_filename="class_distribution_pie_combined.png")
+    else:
+         logging.warning("No train or validation counts available for Pie visualization.")
         
+    # Commented out individual pie chart calls:
+    # if train_counts:
+    #     plot_pie_chart(train_counts,
+    #                    title="Object Detection Class Distribution (Training Set - Pie Chart)",
+    #                    output_filename="class_distribution_train_pie.png")
+    # if val_counts:
+    #     plot_pie_chart(val_counts,
+    #                    title="Object Detection Class Distribution (Validation Set - Pie Chart)",
+    #                    output_filename="class_distribution_val_pie.png")
+
     # Ensure the comparison plot call remains commented out or removed
     # from vis import plot_comparison_distribution # Import if uncommenting
     # if train_counts or val_counts:

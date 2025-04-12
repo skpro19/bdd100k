@@ -7,4 +7,3 @@ globs: *
 * [tree.md](mdc:tree.md) contains information about the project structure.
 * [findings.md](mdc:findings.md) contains important data-related insights / findings.
 * Save all visualization files in the "assets" folder
-* Embed visualizations in [findings.md](mdc:findings.md)
