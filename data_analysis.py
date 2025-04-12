@@ -2,10 +2,10 @@ import json
 import logging
 import os
 from collections import Counter, defaultdict
-from typing import Dict, List, Any, Set, Counter as TypingCounter
+from typing import Dict, List, Any, Set, Counter as TypingCounter, Tuple
 
 # Import the plotting functions from vis.py
-from vis import plot_class_distribution, plot_treemap
+from vis import plot_class_distribution, plot_treemap, plot_spatial_heatmap
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -282,6 +282,54 @@ def analyze_total_area_per_class(data: List[Dict[str, Any]], dataset_name: str) 
 
     return dict(class_areas)
 
+def analyze_object_locations(data: List[Dict[str, Any]], dataset_name: str) -> Dict[str, Tuple[List[float], List[float]]]:
+    """Extracts the center coordinates (cx, cy) for each relevant object class.
+
+    Args:
+        data: The list of dictionaries loaded from the JSON label file.
+        dataset_name: Name of the dataset being analyzed.
+
+    Returns:
+        A dictionary where keys are class names and values are tuples 
+        containing two lists: ([cx1, cx2,...], [cy1, cy2,...]) for that class.
+    """
+    # Initialize dictionary to hold lists for each class
+    location_data: Dict[str, Tuple[List[float], List[float]]] = \
+        {category: ([], []) for category in OBJECT_DETECTION_CLASSES}
+
+    if not data:
+        logging.warning(f"No data provided for object location analysis for {dataset_name}.")
+        return location_data
+
+    logging.info(f"Analyzing object locations per class for {dataset_name}...")
+
+    valid_boxes_found = 0
+    total_relevant_labels = 0
+    
+    for image_entry in data:
+        labels = image_entry.get('labels', [])
+        for label in labels:
+            category = label.get('category')
+            if category in OBJECT_DETECTION_CLASSES:
+                total_relevant_labels += 1
+                box2d = label.get('box2d')
+                if box2d:
+                    x1, y1, x2, y2 = box2d.get('x1'), box2d.get('y1'), box2d.get('x2'), box2d.get('y2')
+                    if None not in [x1, y1, x2, y2] and x2 > x1 and y2 > y1:
+                        cx = (x1 + x2) / 2.0
+                        cy = (y1 + y2) / 2.0
+                        # Append coordinates to the list for the specific category
+                        location_data[category][0].append(cx)
+                        location_data[category][1].append(cy)
+                        valid_boxes_found += 1
+
+    logging.info(f"[{dataset_name}] Extracted center locations for {valid_boxes_found} valid boxes across {len(OBJECT_DETECTION_CLASSES)} classes.")
+    # Log counts per class for verification
+    for category, (cx_list, cy_list) in location_data.items():
+         logging.debug(f"  - {category}: Found {len(cx_list)} centers.")
+         
+    return location_data
+
 def main() -> None:
     """Main function to run the data analysis and visualization."""
     # Analyze Training Set
@@ -291,6 +339,8 @@ def main() -> None:
     train_image_attr_counts: Dict[str, TypingCounter[str]] = {}
     train_object_attr_counts: Dict[str, TypingCounter[str]] = {}
     train_class_areas: Dict[str, float] = {}
+    train_locations_per_class: Dict[str, Tuple[List[float], List[float]]] = {}
+
     if train_data:
         # Class distribution analysis
         train_counts = analyze_class_distribution(train_data, dataset_name="Training Set")
@@ -304,6 +354,8 @@ def main() -> None:
         # Class area analysis
         train_class_areas = analyze_total_area_per_class(train_data, dataset_name="Training Set")
         logging.info(f"Training set class area analysis complete.")
+        train_locations_per_class = analyze_object_locations(train_data, dataset_name="Training Set")
+        logging.info(f"Training set object location analysis complete.")
     else:
         logging.error("Could not load or process training data. Skipping analysis.")
 
@@ -378,6 +430,22 @@ def main() -> None:
     else:
         logging.warning("No training class area data available for Treemap visualization.")
     
+    # -- Spatial Heatmap Visualization (Per Class - Training Set Only) --
+    logging.info("- Visualizing Object Spatial Distribution (Per Class Heatmaps - Training Set) -")
+    if train_locations_per_class:
+        # Loop through each category and plot its heatmap
+        for category, (centers_x, centers_y) in train_locations_per_class.items():
+            if centers_x and centers_y:
+                # Sanitize category name for filename (replace space with underscore)
+                safe_category_name = category.replace(' ', '_') 
+                plot_spatial_heatmap(centers_x, centers_y,
+                                     title=f"Spatial Distribution - {category.capitalize()} Centers (Training Set)",
+                                     output_filename=f"object_spatial_heatmap_{safe_category_name}_train.png")
+            else:
+                logging.warning(f"No object center data available for category '{category}' for Spatial Heatmap.")
+    else:
+        logging.warning("No object location data available for Spatial Heatmaps.")
+
     # -- Combined Pie Chart (Optional - currently commented) --
     # logging.info("- Visualizing Combined Pie Chart -") # Add logging if uncommenting
     # from vis import plot_combined_pie_charts # Need import if uncommenting

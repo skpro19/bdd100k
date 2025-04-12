@@ -76,3 +76,44 @@ This perspective is useful for understanding potential biases in evaluation metr
 
 ![Total Pixel Area per Class (Training Set Treemap)](assets/class_total_area_treemap_train.png)
 
+## Object Spatial Distribution (Per Category - Training Set)
+
+To understand where different types of objects typically appear within the image frame, spatial heatmaps were generated for each of the 10 object categories. These 2D histograms show the density of object center points across the 1280x720 image dimensions. Brighter areas indicate higher density.
+
+The heatmaps reveal distinct patterns for different classes. For example:
+*   Vehicles (cars, trucks, buses) are concentrated on the roadway areas.
+*   Pedestrians and riders are often found near the edges (sidewalks) and lower-middle regions.
+*   Traffic lights and signs appear more frequently in the upper portions of the frame.
+
+Below are the spatial heatmaps for each category:
+
+### Spatial Heatmap - Car Centers (Training Set)
+![Spatial Heatmap - Car Centers (Training Set)](assets/object_spatial_heatmap_car_train.png)
+
+### Spatial Heatmap - Person Centers (Training Set)
+![Spatial Heatmap - Person Centers (Training Set)](assets/object_spatial_heatmap_person_train.png)
+
+### Spatial Heatmap - Traffic Light Centers (Training Set)
+![Spatial Heatmap - Traffic Light Centers (Training Set)](assets/object_spatial_heatmap_traffic_light_train.png)
+
+### Spatial Heatmap - Traffic Sign Centers (Training Set)
+![Spatial Heatmap - Traffic Sign Centers (Training Set)](assets/object_spatial_heatmap_traffic_sign_train.png)
+
+### Spatial Heatmap - Truck Centers (Training Set)
+![Spatial Heatmap - Truck Centers (Training Set)](assets/object_spatial_heatmap_truck_train.png)
+
+### Spatial Heatmap - Bus Centers (Training Set)
+![Spatial Heatmap - Bus Centers (Training Set)](assets/object_spatial_heatmap_bus_train.png)
+
+### Spatial Heatmap - Bike Centers (Training Set)
+![Spatial Heatmap - Bike Centers (Training Set)](assets/object_spatial_heatmap_bike_train.png)
+
+### Spatial Heatmap - Motor Centers (Training Set)
+![Spatial Heatmap - Motor Centers (Training Set)](assets/object_spatial_heatmap_motor_train.png)
+
+### Spatial Heatmap - Rider Centers (Training Set)
+![Spatial Heatmap - Rider Centers (Training Set)](assets/object_spatial_heatmap_rider_train.png)
+
+### Spatial Heatmap - Train Centers (Training Set)
+![Spatial Heatmap - Train Centers (Training Set)](assets/object_spatial_heatmap_train_train.png)
+

@@ -3,6 +3,7 @@ import os
 from collections import Counter
 from typing import Dict, List, Any, Set
 import matplotlib.pyplot as plt
+import numpy as np # Added import for numpy
 import pandas as pd
 import seaborn as sns
 import squarify # Added import for treemaps
@@ -329,6 +330,57 @@ def plot_treemap(class_areas: Dict[str, float], title: str, output_filename: str
         logging.info(f"Saved treemap plot to: {save_path}")
     except Exception as e:
         logging.error(f"Failed to save treemap plot {save_path}: {e}")
+    finally:
+        plt.close()
+
+def plot_spatial_heatmap(centers_x: List[float], centers_y: List[float], title: str, output_filename: str, 
+                         img_width: int = 1280, img_height: int = 720, bins: int = 50) -> None:
+    """Generates and saves a 2D histogram heatmap of object center locations.
+
+    Args:
+        centers_x: List of object center x-coordinates.
+        centers_y: List of object center y-coordinates.
+        title: The title for the plot.
+        output_filename: The filename to save the heatmap to (relative to OUTPUT_DIR).
+        img_width: The width of the original images (for setting range).
+        img_height: The height of the original images (for setting range).
+        bins: The number of bins to use for the histogram in each dimension.
+    """
+    if not centers_x or not centers_y:
+        logging.warning(f"No data provided for spatial heatmap: {title}. Skipping plot generation.")
+        return
+    
+    logging.info(f"Generating spatial heatmap: {title}")
+    
+    # Create the 2D histogram
+    plt.figure(figsize=(10, 6)) # Adjust figure size as needed
+    # Use hist2d for density. Consider cmin=1 to ignore empty bins.
+    # Use cmap='inferno' or 'hot' for heatmap effect.
+    heatmap, xedges, yedges, img = plt.hist2d(centers_x, centers_y, 
+                                             bins=bins, 
+                                             range=[[0, img_width], [0, img_height]],
+                                             cmap='inferno', 
+                                             cmin=1) # cmin avoids plotting bins with zero counts
+    
+    plt.colorbar(label='Object Center Density')
+    plt.title(title)
+    plt.xlabel("X-coordinate (pixels)")
+    plt.ylabel("Y-coordinate (pixels)")
+    
+    # Set axis limits and invert y-axis to match image coordinates (0,0 at top-left)
+    plt.xlim(0, img_width)
+    plt.ylim(img_height, 0) 
+    plt.gca().set_aspect('equal', adjustable='box') # Ensure correct aspect ratio
+    
+    plt.tight_layout()
+    
+    # Save the plot
+    save_path = os.path.join(OUTPUT_DIR, output_filename)
+    try:
+        plt.savefig(save_path, bbox_inches='tight')
+        logging.info(f"Saved spatial heatmap plot to: {save_path}")
+    except Exception as e:
+        logging.error(f"Failed to save spatial heatmap plot {save_path}: {e}")
     finally:
         plt.close()
 
