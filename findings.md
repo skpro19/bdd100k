@@ -10,12 +10,8 @@ The key observations are:
 *   **Significant Class Imbalance:** There is a large imbalance in the dataset. The 'car' class dominates both splits, accounting for over 55% of all instances. Classes like 'traffic sign' and 'traffic light' are the next most frequent, while classes such as 'train', 'motor', 'rider', and 'bike' are significantly less common (often < 1%). This imbalance could affect model training and evaluation, potentially leading to bias towards more frequent classes.
 *   **Similar Train/Validation Distributions:** The relative frequencies of classes are highly consistent between the training and validation sets. This suggests the validation set is a representative sample of the training data in terms of class distribution, which is good for reliable evaluation.
 
-Below are the visualizations showing the counts for each class in the training and validation sets:
+Below is a visualization comparing the class distributions for the training and validation sets side-by-side using pie charts:
 
-### Training Set Class Distribution
+### Train vs. Validation Class Distribution Comparison
 
-![Training Set Class Distribution](assets/class_distribution_train.png)
-
-### Validation Set Class Distribution
-
-![Validation Set Class Distribution](assets/class_distribution_val.png)
+![Train vs Validation Class Distribution](assets/class_distribution_pie_combined.png)
