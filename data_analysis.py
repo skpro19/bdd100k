@@ -360,17 +360,24 @@ def main() -> None:
         logging.error("Could not load or process training data. Skipping analysis.")
 
     # --- Analyze Validation Set --- (Optional - currently only analyzing train for attributes)
-    # logging.info("--- Starting Analysis for Validation Set ---")
-    # val_data = load_json_data(VAL_LABELS_FILE)
-    # val_counts = Counter()
-    # val_image_attr_counts: Dict[str, TypingCounter[str]] = {}
-    # if val_data:
-    #     val_counts = analyze_class_distribution(val_data, dataset_name="Validation Set")
-    #     logging.info(f"Validation set class distribution analysis complete.")
-    #     val_image_attr_counts = analyze_image_attributes(val_data, dataset_name="Validation Set")
-    #     logging.info(f"Validation set image attribute analysis complete.")
-    # else:
-    #     logging.error("Could not load or process validation data. Skipping analysis.")
+    logging.info("--- Starting Analysis for Validation Set ---")
+    val_data = load_json_data(VAL_LABELS_FILE)
+    val_counts = Counter()
+    val_image_attr_counts: Dict[str, TypingCounter[str]] = {}
+    val_object_attr_counts: Dict[str, TypingCounter[str]] = {}
+    val_class_areas: Dict[str, float] = {}
+
+    if val_data:
+        val_counts = analyze_class_distribution(val_data, dataset_name="Validation Set")
+        logging.info(f"Validation set class distribution analysis complete.")
+        val_image_attr_counts = analyze_image_attributes(val_data, dataset_name="Validation Set")
+        logging.info(f"Validation set image attribute analysis complete.")
+        val_object_attr_counts = analyze_object_attributes(val_data, dataset_name="Validation Set")
+        logging.info(f"Validation set object attribute analysis complete.")
+        val_class_areas = analyze_total_area_per_class(val_data, dataset_name="Validation Set")
+        logging.info(f"Validation set class area analysis complete.")
+    else:
+        logging.error("Could not load or process validation data. Skipping analysis.")
 
     # --- Visualization Step --- 
     logging.info("--- Starting Visualization --- ")
@@ -385,29 +392,44 @@ def main() -> None:
         logging.warning("No training class counts available for Bar visualization.")
     
     # Plot validation class distribution if loaded
-    # if val_counts:
-    #     plot_class_distribution(val_counts, 
-    #                             title="Object Detection Class Distribution (Validation Set - Percentage)", 
-    #                             output_filename="class_distribution_val_bar_pct.png")
-    # else:
-    #     logging.warning("No validation class counts available for Bar visualization.")
+    if val_counts:
+        plot_class_distribution(val_counts, 
+                                title="Object Detection Class Distribution (Validation Set - Percentage)", 
+                                output_filename="class_distribution_val_bar_pct.png")
+    else:
+        logging.warning("No validation class counts available for Bar visualization.")
 
     # -- Image Attribute Distribution Visualization (Training Set Only) --
-    logging.info("- Visualizing Image Attribute Distributions (Training Set) -")
+    logging.info("- Visualizing Image Attribute Distributions -")
     if train_image_attr_counts:
+        logging.info("  -- Training Set --")
         for attr_name, counts in train_image_attr_counts.items():
             if counts:
                 plot_class_distribution(counts, # Reusing the bar chart function
                                         title=f"Image Attribute Distribution: {attr_name.capitalize()} (Training Set)", 
                                         output_filename=f"image_attr_{attr_name}_dist_train.png")
             else:
-                logging.warning(f"No data to plot for image attribute: {attr_name}")
+                logging.warning(f"No data to plot for training image attribute: {attr_name}")
     else:
         logging.warning("No training image attribute counts available for visualization.")
+        
+    # Add visualization for validation image attributes
+    if val_image_attr_counts:
+        logging.info("  -- Validation Set --")
+        for attr_name, counts in val_image_attr_counts.items():
+            if counts:
+                plot_class_distribution(counts, # Reusing the bar chart function
+                                        title=f"Image Attribute Distribution: {attr_name.capitalize()} (Validation Set)", 
+                                        output_filename=f"image_attr_{attr_name}_dist_val.png")
+            else:
+                logging.warning(f"No data to plot for validation image attribute: {attr_name}")
+    else:
+        logging.warning("No validation image attribute counts available for visualization.")
 
     # -- Object Attribute Distribution Visualization (Training Set Only) --
-    logging.info("- Visualizing Object Attribute Distributions (Training Set) -")
+    logging.info("- Visualizing Object Attribute Distributions -")
     if train_object_attr_counts:
+        logging.info("  -- Training Set --")
         for attr_name, counts in train_object_attr_counts.items():
             if counts:
                 # Sort the counter by key ('False', 'True') for consistent bar order
@@ -417,18 +439,44 @@ def main() -> None:
                                         title=f"Object Attribute Distribution: {attr_name.capitalize()} (Training Set)", 
                                         output_filename=f"object_attr_{attr_name}_dist_train.png")
             else:
-                logging.warning(f"No data to plot for object attribute: {attr_name}")
+                logging.warning(f"No data to plot for training object attribute: {attr_name}")
     else:
         logging.warning("No training object attribute counts available for visualization.")
 
+    # Add visualization for validation object attributes
+    if val_object_attr_counts:
+        logging.info("  -- Validation Set --")
+        for attr_name, counts in val_object_attr_counts.items():
+            if counts:
+                # Sort the counter by key ('False', 'True') for consistent bar order
+                sorted_counts_dict = dict(sorted(counts.items()))
+                sorted_counts = Counter(sorted_counts_dict)
+                plot_class_distribution(sorted_counts, # Reusing the bar chart function
+                                        title=f"Object Attribute Distribution: {attr_name.capitalize()} (Validation Set)", 
+                                        output_filename=f"object_attr_{attr_name}_dist_val.png")
+            else:
+                logging.warning(f"No data to plot for validation object attribute: {attr_name}")
+    else:
+        logging.warning("No validation object attribute counts available for visualization.")
+
     # -- Class Area Treemap Visualization (Training Set Only) --
-    logging.info("- Visualizing Total Class Area (Treemap - Training Set) -")
+    logging.info("- Visualizing Total Class Area (Treemaps) -")
     if train_class_areas:
+        logging.info("  -- Training Set --")
         plot_treemap(train_class_areas,
                      title="Total Pixel Area per Object Class (Training Set)",
                      output_filename="class_total_area_treemap_train.png")
     else:
         logging.warning("No training class area data available for Treemap visualization.")
+
+    # Add visualization for validation class area
+    if val_class_areas:
+        logging.info("  -- Validation Set --")
+        plot_treemap(val_class_areas,
+                     title="Total Pixel Area per Object Class (Validation Set)",
+                     output_filename="class_total_area_treemap_val.png")
+    else:
+        logging.warning("No validation class area data available for Treemap visualization.")
     
     # -- Spatial Heatmap Visualization (Per Class - Training Set Only) --
     logging.info("- Visualizing Object Spatial Distribution (Per Class Heatmaps - Training Set) -")

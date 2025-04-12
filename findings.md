@@ -20,59 +20,83 @@ Below are bar charts showing the percentage distribution for each class in the t
 
 ![Validation Set Class Distribution (%)](assets/class_distribution_val_bar_pct.png)
 
-## Image Attribute Analysis (Training Set)
+## Image Attribute Analysis
 
-The distribution of image-level attributes (weather, scene, time of day) was analyzed for the training set.
+The distribution of image-level attributes (weather, scene, time of day) was analyzed for both the training and validation sets. 
 
-*   **Weather:** The dataset is dominated by 'clear' weather images (~53%), with 'overcast', 'undefined', 'snowy', and 'rainy' conditions making up the bulk of the remainder. 'Foggy' conditions are very rare.
-*   **Scene:** 'City street' is the most common scene type (~62%), followed by 'highway' (~25%) and 'residential' (~12%). Other scenes like 'parking lot', 'tunnel', and 'gas stations' are infrequent.
+*   **Weather:** Both datasets are dominated by 'clear' weather images (~53%), with 'overcast', 'undefined', 'snowy', and 'rainy' conditions making up the bulk of the remainder. 'Foggy' conditions are very rare (< 0.2%).
+*   **Scene:** 'City street' is the most common scene type (~61-62%), followed by 'highway' (~25%) and 'residential' (~12%). Other scenes like 'parking lot', 'tunnel', and 'gas stations' are infrequent.
 *   **Time of Day:** Images are roughly balanced between 'daytime' (~53%) and 'night' (~40%), with a smaller portion captured at 'dawn/dusk' (~7%).
 
-These distributions are important as model performance might vary significantly depending on these conditions.
+The distributions are very similar between the training and validation sets, indicating consistency in environmental conditions across the splits. These distributions are important as model performance might vary significantly depending on these conditions.
 
-Below are bar charts showing the percentage distribution for each attribute in the training set:
+Below are bar charts showing the percentage distribution for each attribute in both sets:
 
 ### Weather Distribution (Training Set %)
 
 ![Weather Distribution (Training Set %)](assets/image_attr_weather_dist_train.png)
 
+### Weather Distribution (Validation Set %)
+
+![Weather Distribution (Validation Set %)](assets/image_attr_weather_dist_val.png)
+
 ### Scene Distribution (Training Set %)
 
 ![Scene Distribution (Training Set %)](assets/image_attr_scene_dist_train.png)
+
+### Scene Distribution (Validation Set %)
+
+![Scene Distribution (Validation Set %)](assets/image_attr_scene_dist_val.png)
 
 ### Time of Day Distribution (Training Set %)
 
 ![Time of Day Distribution (Training Set %)](assets/image_attr_timeofday_dist_train.png)
 
-## Object Attribute Analysis (Training Set)
+### Time of Day Distribution (Validation Set %)
 
-The distribution of object-level boolean attributes (`occluded`, `truncated`) was analyzed across all labeled objects belonging to the 10 target detection classes in the training set.
+![Time of Day Distribution (Validation Set %)](assets/image_attr_timeofday_dist_val.png)
 
-*   **Occlusion:** A significant portion of objects are marked as occluded (~47%). This high rate of occlusion presents a major challenge for detection models.
-*   **Truncation:** Truncation is much less common, with only about 7% of objects marked as truncated (extending beyond the image boundary).
+## Object Attribute Analysis
 
-Understanding the prevalence of these attributes is important for interpreting model performance, as occluded and truncated objects are typically harder to detect accurately.
+The distribution of object-level boolean attributes (`occluded`, `truncated`) was analyzed across all labeled objects belonging to the 10 target detection classes in the training and validation sets.
 
-Below are bar charts showing the percentage distribution for these attributes in the training set:
+*   **Occlusion:** A significant portion of objects are marked as occluded (~47%) in both sets. This high rate of occlusion presents a major challenge for detection models.
+*   **Truncation:** Truncation is much less common, with only about 7% of objects marked as truncated (extending beyond the image boundary) in both sets.
+
+Understanding the prevalence of these attributes is important for interpreting model performance, as occluded and truncated objects are typically harder to detect accurately. The consistency between train and validation sets is good for evaluation.
+
+Below are bar charts showing the percentage distribution for these attributes in both sets:
 
 ### Occlusion Distribution (Training Set %)
 
 ![Occlusion Distribution (Training Set %)](assets/object_attr_occluded_dist_train.png)
 
+### Occlusion Distribution (Validation Set %)
+
+![Occlusion Distribution (Validation Set %)](assets/object_attr_occluded_dist_val.png)
+
 ### Truncation Distribution (Training Set %)
 
 ![Truncation Distribution (Training Set %)](assets/object_attr_truncated_dist_train.png)
 
-## Bounding Box Area Analysis (Training Set)
+### Truncation Distribution (Validation Set %)
 
-To understand the relative screen space occupied by different object classes, the total pixel area for all bounding boxes of each class was calculated and visualized using a treemap. The area of each rectangle corresponds to the total pixel area for that class.
+![Truncation Distribution (Validation Set %)](assets/object_attr_truncated_dist_val.png)
 
-*   **Dominance by Vehicle Area:** Although 'car' is the most frequent object, the treemap shows that cars, trucks, and buses together occupy the vast majority of the labeled object pixel area in the dataset. This is expected as these objects are typically much larger than pedestrians, signs, or lights.
-*   **Area vs. Count Discrepancy:** Comparing this to the class *count* distribution highlights that frequent but small objects (like traffic signs, traffic lights) contribute much less to the total labeled area than less frequent but larger objects (like buses, trucks).
+## Bounding Box Area Analysis
 
-This perspective is useful for understanding potential biases in evaluation metrics that might be influenced by object size.
+To understand the relative screen space occupied by different object classes, the total pixel area for all bounding boxes of each class was calculated and visualized using treemaps for both the training and validation sets. The area of each rectangle corresponds to the total pixel area for that class.
+
+*   **Dominance by Vehicle Area:** In both sets, although 'car' is the most frequent object by count, the treemaps show that cars, trucks, and buses together occupy the vast majority (> 90%) of the labeled object pixel area. This is expected as these objects are typically much larger than pedestrians, signs, or lights.
+*   **Area vs. Count Discrepancy:** Comparing this to the class *count* distribution highlights that frequent but small objects (like traffic signs, traffic lights) contribute much less to the total labeled area than less frequent but larger objects (like buses, trucks). This pattern is consistent across both train and validation sets.
+
+This perspective is useful for understanding potential biases in evaluation metrics that might be influenced by object size. The consistency between sets suggests this size characteristic is stable.
 
 ### Total Pixel Area per Class (Training Set Treemap)
 
 ![Total Pixel Area per Class (Training Set Treemap)](assets/class_total_area_treemap_train.png)
+
+### Total Pixel Area per Class (Validation Set Treemap)
+
+![Total Pixel Area per Class (Validation Set Treemap)](assets/class_total_area_treemap_val.png)
 
