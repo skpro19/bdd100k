@@ -1,7 +1,8 @@
 ---
 description: General guidelines about the project
-globs: * 
+globs: *
 ---
 # General Guidelines
 * [goals.md](mdc:goals.md) contains information about the project goals. 
 * [tree.md](mdc:tree.md) contains information about the project structure.
+* [findings.md](mdc:findings.md) contains important data-related insights / findings
