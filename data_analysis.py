@@ -155,6 +155,68 @@ def analyze_image_attributes(data: List[Dict[str, Any]], dataset_name: str) -> D
 
     return attribute_counts
 
+def analyze_object_attributes(data: List[Dict[str, Any]], dataset_name: str) -> Dict[str, TypingCounter[str]]:
+    """Analyzes the distribution of object-level attributes (occluded, truncated)
+       across all objects in the specified detection classes.
+
+    Args:
+        data: The list of dictionaries loaded from the JSON label file.
+        dataset_name: Name of the dataset being analyzed.
+
+    Returns:
+        A dictionary where keys are attribute names ('occluded', 'truncated') 
+        and values are Counter objects counting True/False occurrences.
+    """
+    attribute_counts: Dict[str, TypingCounter[str]] = {
+        'occluded': Counter(),
+        'truncated': Counter()
+        # Add other boolean attributes here if needed
+    }
+
+    if not data:
+        logging.warning(f"No data provided for object attribute analysis for {dataset_name}.")
+        return attribute_counts
+
+    logging.info(f"Analyzing object attributes for {dataset_name}...")
+
+    total_relevant_labels = 0
+    for image_entry in data:
+        labels = image_entry.get('labels', [])
+        for label in labels:
+            # Only consider labels belonging to the target object detection classes
+            if label.get('category') in OBJECT_DETECTION_CLASSES:
+                total_relevant_labels += 1
+                attributes = label.get('attributes')
+                if attributes:
+                    for attr_name in attribute_counts.keys():
+                        value = attributes.get(attr_name) 
+                        # Convert boolean value to string for Counter key
+                        if isinstance(value, bool):
+                            attribute_counts[attr_name][str(value)] += 1
+                        # else: (handle missing or non-boolean values if necessary)
+                        #    attribute_counts[attr_name]['Unknown/Missing'] += 1 
+                # else: (handle labels missing the 'attributes' dict)
+                #     attribute_counts['occluded']['Unknown/Missing'] += 1
+                #     attribute_counts['truncated']['Unknown/Missing'] += 1
+    
+    logging.info(f"[{dataset_name}] Processed attributes for {total_relevant_labels} relevant object labels.")
+
+    # Log the distributions
+    for attr_name, counts in attribute_counts.items():
+        logging.info(f"Object Attribute Distribution - {attr_name.capitalize()} ({dataset_name}):")
+        if not counts:
+            logging.info(f"  No data found for attribute '{attr_name}'.")
+            continue
+            
+        total = sum(counts.values())
+        logging.info(f"  Total relevant labels with '{attr_name}' attribute: {total}")
+        # Sort True/False for consistent reporting
+        for value, count in sorted(counts.items()):
+            percentage = (count / total) * 100 if total > 0 else 0
+            logging.info(f"  - {value}: {count} ({percentage:.2f}%)")
+
+    return attribute_counts
+
 def main() -> None:
     """Main function to run the data analysis and visualization."""
     # Analyze Training Set
@@ -162,6 +224,7 @@ def main() -> None:
     train_data = load_json_data(TRAIN_LABELS_FILE)
     train_counts = Counter()
     train_image_attr_counts: Dict[str, TypingCounter[str]] = {}
+    train_object_attr_counts: Dict[str, TypingCounter[str]] = {}
     if train_data:
         # Class distribution analysis
         train_counts = analyze_class_distribution(train_data, dataset_name="Training Set")
@@ -169,6 +232,9 @@ def main() -> None:
         # Image attribute analysis
         train_image_attr_counts = analyze_image_attributes(train_data, dataset_name="Training Set")
         logging.info(f"Training set image attribute analysis complete.")
+        # Object attribute analysis
+        train_object_attr_counts = analyze_object_attributes(train_data, dataset_name="Training Set")
+        logging.info(f"Training set object attribute analysis complete.")
     else:
         logging.error("Could not load or process training data. Skipping analysis.")
 
@@ -217,6 +283,22 @@ def main() -> None:
                 logging.warning(f"No data to plot for image attribute: {attr_name}")
     else:
         logging.warning("No training image attribute counts available for visualization.")
+
+    # -- Object Attribute Distribution Visualization (Training Set Only) --
+    logging.info("- Visualizing Object Attribute Distributions (Training Set) -")
+    if train_object_attr_counts:
+        for attr_name, counts in train_object_attr_counts.items():
+            if counts:
+                # Sort the counter by key ('False', 'True') for consistent bar order
+                sorted_counts_dict = dict(sorted(counts.items()))
+                sorted_counts = Counter(sorted_counts_dict)
+                plot_class_distribution(sorted_counts, # Reusing the bar chart function
+                                        title=f"Object Attribute Distribution: {attr_name.capitalize()} (Training Set)", 
+                                        output_filename=f"object_attr_{attr_name}_dist_train.png")
+            else:
+                logging.warning(f"No data to plot for object attribute: {attr_name}")
+    else:
+        logging.warning("No training object attribute counts available for visualization.")
 
     # -- Combined Pie Chart (Optional - currently commented) --
     # logging.info("- Visualizing Combined Pie Chart -") # Add logging if uncommenting

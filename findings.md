@@ -44,3 +44,22 @@ Below are bar charts showing the percentage distribution for each attribute in t
 
 ![Time of Day Distribution (Training Set %)](assets/image_attr_timeofday_dist_train.png)
 
+## Object Attribute Analysis (Training Set)
+
+The distribution of object-level boolean attributes (`occluded`, `truncated`) was analyzed across all labeled objects belonging to the 10 target detection classes in the training set.
+
+*   **Occlusion:** A significant portion of objects are marked as occluded (~47%). This high rate of occlusion presents a major challenge for detection models.
+*   **Truncation:** Truncation is much less common, with only about 7% of objects marked as truncated (extending beyond the image boundary).
+
+Understanding the prevalence of these attributes is important for interpreting model performance, as occluded and truncated objects are typically harder to detect accurately.
+
+Below are bar charts showing the percentage distribution for these attributes in the training set:
+
+### Occlusion Distribution (Training Set %)
+
+![Occlusion Distribution (Training Set %)](assets/object_attr_occluded_dist_train.png)
+
+### Truncation Distribution (Training Set %)
+
+![Truncation Distribution (Training Set %)](assets/object_attr_truncated_dist_train.png)
+

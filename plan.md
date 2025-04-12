@@ -2,6 +2,10 @@
 - add black
 - add dashboard in assets
 - readme
+- add interactive dashboard
 - docker 
-- add assets folder
++ add assets folder
 - embed plots in findings.md
+- refer dataset ninja
+- make [train | val] data parallel to each other in findings.md
+- more creative visualizations for image / objects / bboxs
