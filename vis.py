@@ -5,6 +5,7 @@ from typing import Dict, List, Any, Set
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+import squarify # Added import for treemaps
 
 # Configure logging (can be configured independently or inherit from main script)
 # If run independently, this basic config helps. If imported, root logger config might apply.
@@ -279,6 +280,57 @@ def plot_comparison_distribution(train_counts: Counter, val_counts: Counter, tit
     except Exception as e:
         logging.error(f"Failed to save plot {save_path}: {e}")
     plt.close()
+
+def plot_treemap(class_areas: Dict[str, float], title: str, output_filename: str) -> None:
+    """Generates and saves a treemap visualizing total area per class.
+
+    Args:
+        class_areas: Dictionary mapping class name to total bounding box area.
+        title: The title for the plot.
+        output_filename: The filename to save the treemap to (relative to OUTPUT_DIR).
+    """
+    if not class_areas:
+        logging.warning(f"No data provided for treemap: {title}. Skipping plot generation.")
+        return
+
+    logging.info(f"Generating treemap: {title}")
+
+    # Prepare data: sizes (areas) and labels (class names)
+    # Sort by area descending for consistent layout
+    sorted_items = sorted(class_areas.items(), key=lambda item: item[1], reverse=True)
+    sizes = [item[1] for item in sorted_items]
+    labels = [item[0] for item in sorted_items]
+    total_area = sum(sizes)
+
+    # Create labels for the plot (e.g., "ClassName\n{Percentage}%")
+    plot_labels = [
+        f"{label}\n({(size / total_area * 100):.1f}%)" 
+        for label, size in zip(labels, sizes)
+    ]
+
+    # Use a consistent color palette
+    colors = sns.color_palette('viridis', n_colors=len(labels))
+
+    # Create the plot
+    plt.figure(figsize=(14, 8))
+    squarify.plot(sizes=sizes, 
+                  label=plot_labels, 
+                  color=colors, 
+                  alpha=0.8, # Slight transparency
+                  text_kwargs={'fontsize':10, 'color':'white', 'weight':'bold'} # Style text inside boxes
+                  )
+    plt.title(title, fontsize=16)
+    plt.axis('off') # Hide axes for treemaps
+
+    # Save the plot
+    save_path = os.path.join(OUTPUT_DIR, output_filename)
+    try:
+        plt.savefig(save_path, bbox_inches='tight')
+        logging.info(f"Saved treemap plot to: {save_path}")
+    except Exception as e:
+        logging.error(f"Failed to save treemap plot {save_path}: {e}")
+    finally:
+        plt.close()
 
 # Example usage if run directly (optional)
 if __name__ == '__main__':

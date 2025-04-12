@@ -63,3 +63,16 @@ Below are bar charts showing the percentage distribution for these attributes in
 
 ![Truncation Distribution (Training Set %)](assets/object_attr_truncated_dist_train.png)
 
+## Bounding Box Area Analysis (Training Set)
+
+To understand the relative screen space occupied by different object classes, the total pixel area for all bounding boxes of each class was calculated and visualized using a treemap. The area of each rectangle corresponds to the total pixel area for that class.
+
+*   **Dominance by Vehicle Area:** Although 'car' is the most frequent object, the treemap shows that cars, trucks, and buses together occupy the vast majority of the labeled object pixel area in the dataset. This is expected as these objects are typically much larger than pedestrians, signs, or lights.
+*   **Area vs. Count Discrepancy:** Comparing this to the class *count* distribution highlights that frequent but small objects (like traffic signs, traffic lights) contribute much less to the total labeled area than less frequent but larger objects (like buses, trucks).
+
+This perspective is useful for understanding potential biases in evaluation metrics that might be influenced by object size.
+
+### Total Pixel Area per Class (Training Set Treemap)
+
+![Total Pixel Area per Class (Training Set Treemap)](assets/class_total_area_treemap_train.png)
+

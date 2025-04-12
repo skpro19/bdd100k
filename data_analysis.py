@@ -5,7 +5,7 @@ from collections import Counter, defaultdict
 from typing import Dict, List, Any, Set, Counter as TypingCounter
 
 # Import the plotting functions from vis.py
-from vis import plot_class_distribution
+from vis import plot_class_distribution, plot_treemap
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -217,6 +217,71 @@ def analyze_object_attributes(data: List[Dict[str, Any]], dataset_name: str) -> 
 
     return attribute_counts
 
+def analyze_total_area_per_class(data: List[Dict[str, Any]], dataset_name: str) -> Dict[str, float]:
+    """Calculates the total pixel area occupied by each object class.
+
+    Args:
+        data: The list of dictionaries loaded from the JSON label file.
+        dataset_name: Name of the dataset being analyzed.
+
+    Returns:
+        A dictionary mapping class names to the sum of their bounding box areas.
+    """
+    class_areas = defaultdict(float)
+
+    if not data:
+        logging.warning(f"No data provided for class area analysis for {dataset_name}.")
+        return dict(class_areas)
+
+    logging.info(f"Analyzing total area per class for {dataset_name}...")
+
+    total_relevant_labels = 0
+    labels_missing_box2d = 0
+    invalid_boxes = 0
+
+    for image_entry in data:
+        labels = image_entry.get('labels', [])
+        for label in labels:
+            category = label.get('category')
+            if category in OBJECT_DETECTION_CLASSES:
+                total_relevant_labels += 1
+                box2d = label.get('box2d')
+                if box2d:
+                    x1, y1, x2, y2 = box2d.get('x1'), box2d.get('y1'), box2d.get('x2'), box2d.get('y2')
+                    # Basic validation
+                    if None not in [x1, y1, x2, y2] and x2 > x1 and y2 > y1:
+                        width = x2 - x1
+                        height = y2 - y1
+                        area = width * height
+                        class_areas[category] += area
+                    else:
+                        invalid_boxes += 1
+                        logging.debug(f"Invalid box2d coordinates found for label id {label.get('id', '?')} in image {image_entry.get('name')}: {box2d}")
+                else:
+                    labels_missing_box2d += 1
+                    logging.debug(f"Label id {label.get('id', '?')} in image {image_entry.get('name')} missing 'box2d' key.")
+
+    logging.info(f"[{dataset_name}] Calculated areas for {total_relevant_labels - labels_missing_box2d - invalid_boxes} valid boxes out of {total_relevant_labels} relevant labels.")
+    if labels_missing_box2d > 0:
+        logging.warning(f"[{dataset_name}] {labels_missing_box2d} relevant labels were missing 'box2d' information.")
+    if invalid_boxes > 0:
+        logging.warning(f"[{dataset_name}] {invalid_boxes} relevant labels had invalid 'box2d' coordinates (e.g., x2<=x1 or y2<=y1)." )
+
+    # Log the total areas
+    logging.info(f"Total Area per Class ({dataset_name}):")
+    if not class_areas:
+        logging.info("  No areas calculated.")
+    else:
+        # Sort by area descending for logging
+        sorted_areas = sorted(class_areas.items(), key=lambda item: item[1], reverse=True)
+        grand_total_area = sum(class_areas.values())
+        logging.info(f"  Grand Total Area (all classes): {grand_total_area:,.0f} pixels")
+        for category, total_area in sorted_areas:
+            percentage = (total_area / grand_total_area) * 100 if grand_total_area > 0 else 0
+            logging.info(f"  - {category}: {total_area:,.0f} pixels ({percentage:.2f}%)")
+
+    return dict(class_areas)
+
 def main() -> None:
     """Main function to run the data analysis and visualization."""
     # Analyze Training Set
@@ -225,6 +290,7 @@ def main() -> None:
     train_counts = Counter()
     train_image_attr_counts: Dict[str, TypingCounter[str]] = {}
     train_object_attr_counts: Dict[str, TypingCounter[str]] = {}
+    train_class_areas: Dict[str, float] = {}
     if train_data:
         # Class distribution analysis
         train_counts = analyze_class_distribution(train_data, dataset_name="Training Set")
@@ -235,6 +301,9 @@ def main() -> None:
         # Object attribute analysis
         train_object_attr_counts = analyze_object_attributes(train_data, dataset_name="Training Set")
         logging.info(f"Training set object attribute analysis complete.")
+        # Class area analysis
+        train_class_areas = analyze_total_area_per_class(train_data, dataset_name="Training Set")
+        logging.info(f"Training set class area analysis complete.")
     else:
         logging.error("Could not load or process training data. Skipping analysis.")
 
@@ -300,6 +369,15 @@ def main() -> None:
     else:
         logging.warning("No training object attribute counts available for visualization.")
 
+    # -- Class Area Treemap Visualization (Training Set Only) --
+    logging.info("- Visualizing Total Class Area (Treemap - Training Set) -")
+    if train_class_areas:
+        plot_treemap(train_class_areas,
+                     title="Total Pixel Area per Object Class (Training Set)",
+                     output_filename="class_total_area_treemap_train.png")
+    else:
+        logging.warning("No training class area data available for Treemap visualization.")
+    
     # -- Combined Pie Chart (Optional - currently commented) --
     # logging.info("- Visualizing Combined Pie Chart -") # Add logging if uncommenting
     # from vis import plot_combined_pie_charts # Need import if uncommenting
