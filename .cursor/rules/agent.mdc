@@ -12,6 +12,9 @@ This is a general set of guidelines for the Composer Agent.
 * Ask to test changes made at each step to the user.
 * Refer [project.mdc](mdc:.cursor/rules/project.mdc) for important project files.
 * Follow PEP8 coding standard.
+* Keep updating [tree.md](mdc:tree.md) at regular intervial using the "tree" command from the terminal. 
+* Refer [tree.md](mdc:tree.md) to get a high-level overview of the project structure.
+
 
 # General Guidelines
 * Do not implement stuff unless explicitly asked for.
