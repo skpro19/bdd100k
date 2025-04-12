@@ -1,11 +1,11 @@
 import json
 import logging
 import os
-from collections import Counter
-from typing import Dict, List, Any, Set, Counter
+from collections import Counter, defaultdict
+from typing import Dict, List, Any, Set, Counter as TypingCounter
 
 # Import the plotting functions from vis.py
-from vis import plot_class_distribution, plot_combined_pie_charts
+from vis import plot_class_distribution
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -53,7 +53,7 @@ def load_json_data(file_path: str) -> List[Dict[str, Any]]:
         logging.error(f"An unexpected error occurred while loading {file_path}: {e}")
         return []
 
-def analyze_class_distribution(data: List[Dict[str, Any]], dataset_name: str) -> Counter:
+def analyze_class_distribution(data: List[Dict[str, Any]], dataset_name: str) -> TypingCounter[str]:
     """Analyzes and logs the distribution of specified object detection categories for a given dataset.
 
     Args:
@@ -64,7 +64,7 @@ def analyze_class_distribution(data: List[Dict[str, Any]], dataset_name: str) ->
         A Counter object containing the counts for each object detection class.
         Returns an empty Counter if no data is provided or no relevant labels are found.
     """
-    class_counts: Counter = Counter()
+    class_counts: TypingCounter[str] = Counter()
 
     if not data:
         logging.warning(f"No data provided for class distribution analysis for {dataset_name}.")
@@ -102,72 +102,131 @@ def analyze_class_distribution(data: List[Dict[str, Any]], dataset_name: str) ->
 
     return class_counts
 
+def analyze_image_attributes(data: List[Dict[str, Any]], dataset_name: str) -> Dict[str, TypingCounter[str]]:
+    """Analyzes the distribution of image-level attributes (weather, scene, timeofday).
+
+    Args:
+        data: The list of dictionaries loaded from the JSON label file.
+        dataset_name: Name of the dataset being analyzed.
+
+    Returns:
+        A dictionary where keys are attribute names ('weather', 'scene', 'timeofday') 
+        and values are Counter objects with counts for each attribute value.
+    """
+    attribute_counts: Dict[str, TypingCounter[str]] = {
+        'weather': Counter(),
+        'scene': Counter(),
+        'timeofday': Counter()
+    }
+
+    if not data:
+        logging.warning(f"No data provided for image attribute analysis for {dataset_name}.")
+        return attribute_counts
+
+    logging.info(f"Analyzing image attributes for {dataset_name} ({len(data)} images)..." )
+
+    images_processed = 0
+    for image_entry in data:
+        attributes = image_entry.get('attributes')
+        if attributes:
+            for attr_name in attribute_counts.keys():
+                value = attributes.get(attr_name)
+                if value:
+                    attribute_counts[attr_name][value] += 1
+            images_processed += 1
+        else:
+            logging.debug(f"Image {image_entry.get('name', 'N/A')} missing 'attributes' key.")
+
+    logging.info(f"[{dataset_name}] Processed attributes for {images_processed} images.")
+
+    # Log the distributions
+    for attr_name, counts in attribute_counts.items():
+        logging.info(f"Image Attribute Distribution - {attr_name.capitalize()} ({dataset_name}):")
+        if not counts:
+            logging.info(f"  No data found for attribute '{attr_name}'.")
+            continue
+        
+        total = sum(counts.values())
+        logging.info(f"  Total images with '{attr_name}' attribute: {total}")
+        # Sort by count descending
+        for value, count in counts.most_common():
+            percentage = (count / total) * 100 if total > 0 else 0
+            logging.info(f"  - {value}: {count} ({percentage:.2f}%)")
+
+    return attribute_counts
+
 def main() -> None:
     """Main function to run the data analysis and visualization."""
     # Analyze Training Set
     logging.info("--- Starting Analysis for Training Set ---")
     train_data = load_json_data(TRAIN_LABELS_FILE)
     train_counts = Counter()
+    train_image_attr_counts: Dict[str, TypingCounter[str]] = {}
     if train_data:
+        # Class distribution analysis
         train_counts = analyze_class_distribution(train_data, dataset_name="Training Set")
-        logging.info(f"Training set analysis complete. Class counts obtained.")
+        logging.info(f"Training set class distribution analysis complete.")
+        # Image attribute analysis
+        train_image_attr_counts = analyze_image_attributes(train_data, dataset_name="Training Set")
+        logging.info(f"Training set image attribute analysis complete.")
     else:
         logging.error("Could not load or process training data. Skipping analysis.")
 
-    # Analyze Validation Set
-    logging.info("--- Starting Analysis for Validation Set ---")
-    val_data = load_json_data(VAL_LABELS_FILE)
-    val_counts = Counter()
-    if val_data:
-        val_counts = analyze_class_distribution(val_data, dataset_name="Validation Set")
-        logging.info(f"Validation set analysis complete. Class counts obtained.")
-    else:
-        logging.error("Could not load or process validation data. Skipping analysis.")
+    # --- Analyze Validation Set --- (Optional - currently only analyzing train for attributes)
+    # logging.info("--- Starting Analysis for Validation Set ---")
+    # val_data = load_json_data(VAL_LABELS_FILE)
+    # val_counts = Counter()
+    # val_image_attr_counts: Dict[str, TypingCounter[str]] = {}
+    # if val_data:
+    #     val_counts = analyze_class_distribution(val_data, dataset_name="Validation Set")
+    #     logging.info(f"Validation set class distribution analysis complete.")
+    #     val_image_attr_counts = analyze_image_attributes(val_data, dataset_name="Validation Set")
+    #     logging.info(f"Validation set image attribute analysis complete.")
+    # else:
+    #     logging.error("Could not load or process validation data. Skipping analysis.")
 
-    # Visualization step - Generate Bar charts (percentage) AND Combined Pie chart
+    # --- Visualization Step --- 
     logging.info("--- Starting Visualization --- ")
+    
+    # -- Class Distribution Visualization --
+    logging.info("- Visualizing Class Distributions (Bar Charts) -")
     if train_counts:
-        # Bar chart (Train) with percentages
         plot_class_distribution(train_counts, 
                                 title="Object Detection Class Distribution (Training Set - Percentage)", 
                                 output_filename="class_distribution_train_bar_pct.png")
     else:
-        logging.warning("No training counts available for Bar visualization.")
-        
-    if val_counts:
-        # Bar chart (Validation) with percentages
-        plot_class_distribution(val_counts, 
-                                title="Object Detection Class Distribution (Validation Set - Percentage)", 
-                                output_filename="class_distribution_val_bar_pct.png")
-    else:
-        logging.warning("No validation counts available for Bar visualization.")
-
-    # Combined Pie chart (Train & Validation) - Regenerate
-    if train_counts or val_counts:
-        plot_combined_pie_charts(train_counts, val_counts,
-                                 title="Object Detection Class Distribution Comparison (Pie Charts)",
-                                 output_filename="class_distribution_pie_combined.png")
-    else:
-         logging.warning("No train or validation counts available for Pie visualization.")
-        
-    # Commented out individual pie chart calls:
-    # if train_counts:
-    #     plot_pie_chart(train_counts,
-    #                    title="Object Detection Class Distribution (Training Set - Pie Chart)",
-    #                    output_filename="class_distribution_train_pie.png")
+        logging.warning("No training class counts available for Bar visualization.")
+    
+    # Plot validation class distribution if loaded
     # if val_counts:
-    #     plot_pie_chart(val_counts,
-    #                    title="Object Detection Class Distribution (Validation Set - Pie Chart)",
-    #                    output_filename="class_distribution_val_pie.png")
-
-    # Ensure the comparison plot call remains commented out or removed
-    # from vis import plot_comparison_distribution # Import if uncommenting
-    # if train_counts or val_counts:
-    #     plot_comparison_distribution(train_counts, val_counts, 
-    #                                  title="Object Detection Class Distribution (Train vs. Validation)", 
-    #                                  output_filename="class_distribution_comparison.png")
+    #     plot_class_distribution(val_counts, 
+    #                             title="Object Detection Class Distribution (Validation Set - Percentage)", 
+    #                             output_filename="class_distribution_val_bar_pct.png")
     # else:
-    #     logging.warning("No training or validation counts available for comparison visualization.")
+    #     logging.warning("No validation class counts available for Bar visualization.")
+
+    # -- Image Attribute Distribution Visualization (Training Set Only) --
+    logging.info("- Visualizing Image Attribute Distributions (Training Set) -")
+    if train_image_attr_counts:
+        for attr_name, counts in train_image_attr_counts.items():
+            if counts:
+                plot_class_distribution(counts, # Reusing the bar chart function
+                                        title=f"Image Attribute Distribution: {attr_name.capitalize()} (Training Set)", 
+                                        output_filename=f"image_attr_{attr_name}_dist_train.png")
+            else:
+                logging.warning(f"No data to plot for image attribute: {attr_name}")
+    else:
+        logging.warning("No training image attribute counts available for visualization.")
+
+    # -- Combined Pie Chart (Optional - currently commented) --
+    # logging.info("- Visualizing Combined Pie Chart -") # Add logging if uncommenting
+    # from vis import plot_combined_pie_charts # Need import if uncommenting
+    # if train_counts or val_counts: # Ensure val_counts is defined if uncommenting
+    #     plot_combined_pie_charts(train_counts, val_counts,
+    #                              title="Object Detection Class Distribution Comparison (Pie Charts)",
+    #                              output_filename="class_distribution_pie_combined.png")
+    # else:
+    #      logging.warning("No train or validation counts available for Pie visualization.")
 
 if __name__ == "__main__":
     main() 

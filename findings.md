@@ -20,3 +20,27 @@ Below are bar charts showing the percentage distribution for each class in the t
 
 ![Validation Set Class Distribution (%)](assets/class_distribution_val_bar_pct.png)
 
+## Image Attribute Analysis (Training Set)
+
+The distribution of image-level attributes (weather, scene, time of day) was analyzed for the training set.
+
+*   **Weather:** The dataset is dominated by 'clear' weather images (~53%), with 'overcast', 'undefined', 'snowy', and 'rainy' conditions making up the bulk of the remainder. 'Foggy' conditions are very rare.
+*   **Scene:** 'City street' is the most common scene type (~62%), followed by 'highway' (~25%) and 'residential' (~12%). Other scenes like 'parking lot', 'tunnel', and 'gas stations' are infrequent.
+*   **Time of Day:** Images are roughly balanced between 'daytime' (~53%) and 'night' (~40%), with a smaller portion captured at 'dawn/dusk' (~7%).
+
+These distributions are important as model performance might vary significantly depending on these conditions.
+
+Below are bar charts showing the percentage distribution for each attribute in the training set:
+
+### Weather Distribution (Training Set %)
+
+![Weather Distribution (Training Set %)](assets/image_attr_weather_dist_train.png)
+
+### Scene Distribution (Training Set %)
+
+![Scene Distribution (Training Set %)](assets/image_attr_scene_dist_train.png)
+
+### Time of Day Distribution (Training Set %)
+
+![Time of Day Distribution (Training Set %)](assets/image_attr_timeofday_dist_train.png)
+
