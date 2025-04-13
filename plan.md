@@ -14,8 +14,7 @@
 + make [train | val] data parallel to each other in findings.md
 - more creative visualizations for image / objects / bboxs
 - move everything to jupyter-notebook
-
-## dashboard features
+- add bash folder
 - ability to load the bounding boxes
 - visualize all the distribution patterns
 - add tables (dataset ninja)

@@ -1,4 +1,9 @@
 # folders
 data/**  
 .vscode/**
-__pycache__/** 
+__pycache__/**
+
+
+
+# extensions
+*.pth 
