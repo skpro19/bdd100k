@@ -1,0 +1,3 @@
+[submodule "bdd100k-models"]
+	path = bdd100k-models
+	url = git@github.com:skpro19/bdd100k-models.git
