@@ -1,3 +1,0 @@
-[submodule "bdd100k-models"]
-	path = bdd100k-models
-	url = git@github.com:SysCV/bdd100k-models.git

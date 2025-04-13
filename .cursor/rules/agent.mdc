@@ -8,6 +8,7 @@ This is a general set of guidelines for the Composer Agent.
 
 # Important Guidelines
 * Try to actively use the terminal.
+* Trying using the --verbose flag (when available) while installting stuff.
 * Try to breakdown tasks in such a way that we can test them along the way. 
 * Ask to test changes made at each step to the user.
 * Refer [project.mdc](mdc:.cursor/rules/project.mdc) for important project files.
