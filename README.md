@@ -10,52 +10,94 @@ This project focuses on object detection using the Berkeley Deep Drive (BDD100k)
 ## Task 1: Data Analysis
 
 ### Objective
-The data analysis task involves analyzing the BDD object detection dataset with a focus on the 10 detection classes. This includes examining class distributions, train/validation splits, anomalies, patterns, and visualizing dataset statistics.
+The data analysis task involves analyzing the BDD object detection dataset labels (training and validation splits), focusing on the 10 specified detection classes. The goal is to understand distributions, patterns, and potential challenges within the data that could impact model training and evaluation.
 
-### Key Findings
+### Class Distribution Analysis
+The distribution of object classes was analyzed for both the training (69,863 images) and validation (10,000 images) sets.
 
-#### Class Distribution
-Our analysis revealed significant class imbalance in the dataset:
-- The 'car' class dominates both training and validation sets, accounting for over 55% of all instances
-- 'Traffic sign' and 'traffic light' are the next most frequent classes
-- Classes such as 'train', 'motor', 'rider', and 'bike' are significantly underrepresented (often < 1%)
-- The distribution patterns are consistent between training and validation sets
+*   **Significant Class Imbalance:** A large imbalance exists, with the 'car' class dominating both splits (>55% of instances). 'Traffic sign' and 'traffic light' are next most frequent, while 'train', 'motor', 'rider', and 'bike' are rare (<1%). This imbalance is a key challenge for model training.
+*   **Similar Train/Val Distributions:** Relative class frequencies are consistent between splits, indicating the validation set is representative for evaluation.
 
-#### Image Attributes
-We also analyzed image-level attributes:
+<p align="center"><b>Class Distribution Comparison (Percentage)</b></p>
+<table>
+  <tr>
+    <td align="center">Training Set<br><img src="assets/class_distribution_train_bar_pct.png" alt="Training Set Class Distribution (%)" width="450"/></td>
+    <td align="center">Validation Set<br><img src="assets/class_distribution_val_bar_pct.png" alt="Validation Set Class Distribution (%)" width="450"/></td>
+  </tr>
+</table>
 
-**Weather Conditions:**
-- Clear weather dominates (~53% of images)
-- Overcast, undefined, snowy, and rainy conditions make up most of the remainder
-- Foggy conditions are rare (<0.2%)
+### Image Attribute Analysis
+The distribution of image-level attributes (weather, scene, time of day) was analyzed.
 
-**Scene Types:**
-- City street scenes are most common (~61-62%)
-- Highway (~25%) and residential scenes (~12%) follow
-- Other scenes (parking lots, tunnels, gas stations) are infrequent
+*   **Weather:** Dominated by 'clear' (~53%), followed by 'overcast', 'undefined', 'snowy', and 'rainy'. 'Foggy' is very rare (<0.2%).
+*   **Scene:** 'City street' is most common (~61-62%), followed by 'highway' (~25%) and 'residential' (~12%).
+*   **Time of Day:** Roughly balanced between 'daytime' (~53%) and 'night' (~40%), with 'dawn/dusk' less common (~7%).
 
-**Time of Day:**
-- Roughly balanced between daytime (~53%) and night (~40%)
-- Dawn/dusk represents a smaller portion (~7%)
+The distributions are very similar across train/val splits, ensuring consistency. Performance may vary based on these conditions.
 
-#### Object Attributes
-Analysis of object-level attributes revealed:
+<p align="center"><b>Weather Distribution Comparison (%)</b></p>
+<table>
+  <tr>
+    <td align="center">Training Set<br><img src="assets/image_attr_weather_dist_train.png" alt="Weather Distribution (Training Set %)" width="450"/></td>
+    <td align="center">Validation Set<br><img src="assets/image_attr_weather_dist_val.png" alt="Weather Distribution (Validation Set %)" width="450"/></td>
+  </tr>
+</table>
 
-- About 47% of objects are occluded, posing a challenge for detection models
-- Only about 7% of objects are truncated (extending beyond image boundaries)
+<p align="center"><b>Scene Distribution Comparison (%)</b></p>
+<table>
+  <tr>
+    <td align="center">Training Set<br><img src="assets/image_attr_scene_dist_train.png" alt="Scene Distribution (Training Set %)" width="450"/></td>
+    <td align="center">Validation Set<br><img src="assets/image_attr_scene_dist_val.png" alt="Scene Distribution (Validation Set %)" width="450"/></td>
+  </tr>
+</table>
 
-#### Object Size Analysis
-The analysis of bounding box areas provided additional insights:
+<p align="center"><b>Time of Day Distribution Comparison (%)</b></p>
+<table>
+  <tr>
+    <td align="center">Training Set<br><img src="assets/image_attr_timeofday_dist_train.png" alt="Time of Day Distribution (Training Set %)" width="450"/></td>
+    <td align="center">Validation Set<br><img src="assets/image_attr_timeofday_dist_val.png" alt="Time of Day Distribution (Validation Set %)" width="450"/></td>
+  </tr>
+</table>
 
-- Vehicle classes (cars, trucks, buses) occupy the vast majority (>90%) of labeled object pixel area
-- Small but frequent objects (traffic signs, traffic lights) contribute much less to total labeled area
-- This pattern is consistent across both training and validation sets
+### Object Attribute Analysis
+The boolean attributes `occluded` and `truncated` were analyzed for labeled objects.
 
-### Visualization
-All visualizations are available in the `assets` directory, including:
-- Bar charts showing class distributions
-- Visualizations of image attribute distributions
-- Treemaps showing pixel area per class
+*   **Occlusion:** A significant portion of objects (~47%) are marked as occluded in both sets, presenting a major challenge for detection.
+*   **Truncation:** Much less common (~7%), indicating objects extending beyond image boundaries.
+
+Understanding these is crucial for interpreting model performance. Consistency across splits is beneficial for evaluation.
+
+<p align="center"><b>Occlusion Distribution Comparison (%)</b></p>
+<table>
+  <tr>
+    <td align="center">Training Set<br><img src="assets/object_attr_occluded_dist_train.png" alt="Occlusion Distribution (Training Set %)" width="450"/></td>
+    <td align="center">Validation Set<br><img src="assets/object_attr_occluded_dist_val.png" alt="Occlusion Distribution (Validation Set %)" width="450"/></td>
+  </tr>
+</table>
+
+<p align="center"><b>Truncation Distribution Comparison (%)</b></p>
+<table>
+  <tr>
+    <td align="center">Training Set<br><img src="assets/object_attr_truncated_dist_train.png" alt="Truncation Distribution (Training Set %)" width="450"/></td>
+    <td align="center">Validation Set<br><img src="assets/object_attr_truncated_dist_val.png" alt="Truncation Distribution (Validation Set %)" width="450"/></td>
+  </tr>
+</table>
+
+### Bounding Box Area Analysis
+Treemaps visualize the total pixel area occupied by each object class.
+
+*   **Dominance by Vehicle Area:** Cars, trucks, and buses together occupy the vast majority (>90%) of labeled object pixel area, despite cars being the most numerous.
+*   **Area vs. Count Discrepancy:** Frequent but small objects (traffic signs, lights) contribute far less total area than less frequent but larger objects (buses, trucks).
+
+This perspective highlights potential biases in evaluation metrics influenced by object size. Consistency across splits is observed.
+
+<p align="center"><b>Total Pixel Area per Class Comparison (Treemap)</b></p>
+<table>
+  <tr>
+    <td align="center">Training Set<br><img src="assets/class_total_area_treemap_train.png" alt="Total Pixel Area per Class (Training Set Treemap)" width="450"/></td>
+    <td align="center">Validation Set<br><img src="assets/class_total_area_treemap_val.png" alt="Total Pixel Area per Class (Validation Set Treemap)" width="450"/></td>
+  </tr>
+</table>
 
 ### Implementation
 The data analysis is implemented in `data_analysis.py` and packaged in a Docker container for reproducibility.
@@ -166,7 +208,7 @@ The model was evaluated on the BDD100K validation set using standard object dete
 *Confidence scores show a bimodal distribution, with many detections being either very high confidence (≥0.9) or near the lower threshold (0.3-0.4). This might indicate the model is often either very certain or quite uncertain.*
 
 **Detection Density Distribution:**
-
+    
 ![Detections per Image](assets/detections_per_image.png)
 
 *Detection counts per image vary considerably, showing the model is exposed to both sparse and dense scenes.*
