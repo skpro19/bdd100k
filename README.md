@@ -72,15 +72,103 @@ This task evaluates the performance of a chosen object detection model (Faster R
 ### Key Evaluation Findings
 
 #### Quantitative Performance (IoU Threshold = 0.5)
-- **Mean Average Precision (mAP)**: **0.1916**. This indicates moderate overall performance with significant room for improvement.
-- **Precision vs. Recall**: The model shows high overall recall (0.7666) but low precision (0.3696), resulting from a large number of false positives (223,320) compared to true positives (130,943).
-- **Per-Category Performance**:
-    - **Best Performing**: `car` (AP=0.3868), `traffic sign` (AP=0.2658), `traffic light` (AP=0.2464). Performance strongly correlates with class frequency in the dataset.
-    - **Poorly Performing**: `pedestrian`, `motorcycle`, `bicycle`, `train` all achieved AP=0.0000. This highlights the severe impact of class imbalance and potential class confusion issues. `train` had no detections at all.
-- **Detection Statistics**:
-    - Average detections per image: 17.07.
-    - Detections dominated by `car` (59.55%).
-    - Confidence scores show a bimodal distribution, peaking at very high (≥0.9) and low (0.3-0.4) values.
+The model was evaluated on the BDD100K validation set using the standard detection metrics with an IoU threshold of 0.5.
+
+**Official Evaluation Results:**
+
+| Metric | Value |
+|--------|-------|
+| Mean Average Precision (mAP) | **0.1916** |
+
+**Per-Category Performance:**
+
+| Category | Average Precision (AP) | Precision | Recall | GT Count | Pred Count |
+|----------|------------------------|-----------|--------|----------|------------|
+| car | 0.3868 | 0.4591 | 0.8424 | 102,506 | 188,083 |
+| traffic sign | 0.2658 | 0.3565 | 0.7454 | 34,908 | 72,975 |
+| traffic light | 0.2464 | 0.4893 | 0.5035 | 26,885 | 27,664 |
+| truck | 0.1761 | 0.2205 | 0.7986 | 4,245 | 15,375 |
+| bus | 0.1332 | 0.1724 | 0.7727 | 1,597 | 7,156 |
+| rider | 0.1329 | 0.2114 | 0.6287 | 649 | 1,930 |
+| pedestrian | 0.0000 | 0.0000 | 0.0000 | 0 | 36,266 |
+| motorcycle | 0.0000 | 0.0000 | 0.0000 | 0 | 1,588 |
+| bicycle | 0.0000 | 0.0000 | 0.0000 | 0 | 3,226 |
+| train | 0.0000 | 0.0000 | 0.0000 | 15 | 0 |
+
+*Key Insights from Metrics:*
+1.  **Overall Performance**: Moderate mAP (0.1916) indicates room for improvement.
+2.  **Class Imbalance Impact**: Best performance on common classes (car, traffic sign, traffic light).
+3.  **Precision vs. Recall Trade-off**: High recall but low precision for most classes, suggesting many false positives.
+4.  **Zero-AP Classes**: `pedestrian`, `motorcycle`, `bicycle`, `train` show AP=0, indicating potential evaluation issues or complete failure.
+
+**Overall Detection Statistics:**
+
+| Metric | Value |
+|--------|-------|
+| Total ground truth boxes | 170,805 |
+| Total prediction boxes | 354,263 |
+| True positives | 130,943 |
+| False positives | 223,320 |
+| False negatives | 39,862 |
+| Overall recall | 0.7666 |
+| Overall precision | 0.3696 |
+
+*Note: The high number of false positives confirms the tendency to over-predict.*
+
+**Detection Performance Overview:**
+
+| Metric | Value |
+|--------|-------|
+| Number of Images Evaluated | 10,000 |
+| Total Detections (score ≥ 0.3) | 170,662 |
+| Average Detections per Image | 17.07 |
+| Median Detections per Image | 17.00 |
+| Maximum Detections per Image | 56 |
+
+*Note: Substantial detections per image reflect scene complexity.*
+
+**Class Distribution of Detections:**
+
+| Class | Count | Percentage | Average Confidence |
+|-------|-------|------------|-------------------|
+| car | 101,631 | 59.55% | 0.8024 |
+| traffic sign | 32,656 | 19.13% | 0.7126 |
+| pedestrian | 14,010 | 8.21% | 0.7093 |
+| traffic light | 13,475 | 7.90% | 0.6926 |
+| truck | 4,912 | 2.88% | 0.6375 |
+| bus | 2,075 | 1.22% | 0.6656 |
+| bicycle | 1,035 | 0.61% | 0.6451 |
+| rider | 510 | 0.30% | 0.6863 |
+| motorcycle | 358 | 0.21% | 0.6242 |
+| train | 0 | 0.00% | N/A |
+
+![Class Distribution](bdd100k-models/det/assets/class_distribution.png)
+
+*Note: Detection distribution closely mirrors class imbalance.*
+
+**Confidence Score Analysis:**
+
+![Average Confidence by Class](bdd100k-models/det/assets/avg_score_by_class.png)
+
+| Confidence Score | Number of Detections |
+|------------------|----------------------|
+| 0.9 - 1.0 | 76,186 (44.6%) |
+| 0.8 - 0.9 | 17,322 (10.1%) |
+| 0.7 - 0.8 | 13,662 (8.0%) |
+| 0.6 - 0.7 | 12,963 (7.6%) |
+| 0.5 - 0.6 | 13,758 (8.1%) |
+| 0.4 - 0.5 | 15,933 (9.3%) |
+| 0.3 - 0.4 | 20,838 (12.2%) |
+
+![Confidence Score Distribution](bdd100k-models/det/assets/score_distribution.png)
+
+*Note: Bimodal distribution with peaks at high (≥0.9) and low (0.3-0.4) confidence.*
+
+**Detection Density Distribution:**
+
+![Detections per Image](bdd100k-models/det/assets/detections_per_image.png)
+
+*Note: Considerable variation in detections per image reflects scene diversity.*
 
 #### Qualitative Analysis
 Visual inspection revealed several patterns:
