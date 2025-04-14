@@ -18,6 +18,8 @@
 - ability to load the bounding boxes
 - visualize all the distribution patterns
 - add tables (dataset ninja)
+- remove comments
+- fix .gitignore
 
 # Task 2
 - run inference on train / validation dataset using Sparse R-CNN
