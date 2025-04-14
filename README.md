@@ -1,11 +1,10 @@
 # BDD100K Object Detection Project
 
 ## Project Overview
-This project focuses on object detection using the Berkeley Deep Drive (BDD100k) dataset, which includes 100,000 images with corresponding labels for 10 detection classes. The project is structured around three main tasks:
+This project focuses on object detection using the Berkeley Deep Drive (BDD100k) dataset, which includes 100,000 images with corresponding labels for 10 detection classes. The project is structured around two main tasks:
 
 1. Data Analysis
-2. Model Selection and Implementation
-3. Evaluation and Visualization
+2. Evaluation and Visualization
 
 ## Task 1: Data Analysis
 
@@ -59,6 +58,117 @@ All visualizations are available in the `assets` directory, including:
 
 ### Implementation
 The data analysis is implemented in `data_analysis.py` and packaged in a Docker container for reproducibility.
+
+## Task 3: Evaluation and Visualization
+
+### Evaluation Approach
+We conducted a comprehensive evaluation of the Faster R-CNN R50-FPN model on the full BDD100K validation set (10,000 images) using:
+
+1. **Official Evaluation Metrics**: Standard detection metrics at IoU threshold of 0.5
+2. **Statistical Analysis**: Detection counts, class distribution, and confidence scores
+3. **Visual Inspection**: Systematic analysis of detection visualizations
+4. **Comparative Analysis**: Connecting model performance to data analysis findings
+
+### Quantitative Performance
+
+#### Overall Metrics
+- **Mean Average Precision (mAP)**: 0.1916
+- **Overall Precision**: 0.3696
+- **Overall Recall**: 0.7666
+- **True Positives**: 130,943
+- **False Positives**: 223,320
+- **False Negatives**: 39,862
+
+The considerable gap between recall and precision indicates the model tends to generate many false positives.
+
+#### Per-Category Performance
+The model shows significant performance variation across categories:
+
+| Class | AP | Precision | Recall |
+|-------|------|-----------|--------|
+| car | 0.3868 | 0.4591 | 0.8424 |
+| traffic sign | 0.2658 | 0.3565 | 0.7454 |
+| traffic light | 0.2464 | 0.4893 | 0.5035 |
+| truck | 0.1761 | 0.2205 | 0.7986 |
+| bus | 0.1332 | 0.1724 | 0.7727 |
+| rider | 0.1329 | 0.2114 | 0.6287 |
+| pedestrian | 0.0000 | 0.0000 | 0.0000 |
+| motorcycle | 0.0000 | 0.0000 | 0.0000 |
+| bicycle | 0.0000 | 0.0000 | 0.0000 |
+| train | 0.0000 | 0.0000 | 0.0000 |
+
+Performance directly correlates with class frequency in the dataset, with best results for common classes (car, traffic sign, traffic light) and poorest for rare classes.
+
+#### Detection Statistics
+- **Total Detections (score ≥ 0.3)**: 170,662 across 10,000 images
+- **Average Detections per Image**: 17.07
+- **Confidence Distribution**: 44.6% of detections with confidence ≥ 0.9, showing a bimodal pattern with peaks at very high confidence (0.9+) and at lower threshold (0.3-0.4)
+
+### Qualitative Analysis
+
+#### Successful Detection Patterns
+1. **Clearly Visible Cars**: Excellent detection of unoccluded cars
+2. **Traffic Signs and Lights**: Reliable detection even at moderate distances
+3. **Larger Vehicles**: High recall for trucks and buses, albeit with significant false positives
+
+#### Common Failure Cases
+1. **Occlusion**: Heavily occluded objects frequently missed or detected with low confidence
+2. **Small Objects**: Difficulty detecting distant pedestrians, motorcycles, and bicycles
+3. **Nighttime Scenes**: Reduced performance in low-light conditions
+4. **Class Confusion**: Confusion between similar classes (e.g., car vs. truck, pedestrian vs. rider)
+5. **Environmental Challenges**: Performance degradation in adverse weather conditions
+
+#### Performance Across Conditions
+- **Best Performance**: Daytime, clear weather, city street scenes
+- **Moderate Performance**: Dusk/dawn, overcast conditions, highway scenes
+- **Poorest Performance**: Nighttime, adverse weather (rain/snow), residential areas with occlusions
+
+### Connection to Data Analysis Findings
+
+The evaluation results strongly align with our data analysis findings:
+
+1. **Class Imbalance Impact**: The model's AP values directly correlate with class frequencies identified in our data analysis. Cars (most frequent at >55%) achieve the highest AP (0.3868), while rare classes show extremely poor performance.
+
+2. **Occlusion Effects**: Our data analysis found that 47% of objects are occluded, and the model indeed struggles with occluded objects, contributing to the 39,862 false negatives.
+
+3. **Environmental Conditions**: The model performs best in the most common conditions identified in our analysis (clear weather, daytime, city streets) and degrades in less represented conditions.
+
+4. **Object Size Challenges**: The data analysis highlighted the small pixel area of certain object classes, which corresponds to detection difficulties for smaller objects like traffic signs and distant pedestrians.
+
+### Improvement Suggestions
+
+Based on our evaluation, we recommend several approaches to enhance model performance:
+
+1. **Addressing Class Imbalance**:
+   - Implement class-weighted loss functions
+   - Apply targeted data augmentation for rare classes
+   - Consider two-stage training strategy (balanced subset, then full dataset)
+
+2. **Improving Precision**:
+   - Optimize confidence thresholds per class
+   - Implement hard negative mining
+   - Refine non-maximum suppression parameters
+
+3. **Enhancing Occlusion Handling**:
+   - Incorporate occlusion-aware model architectures
+   - Add attention mechanisms for partially visible objects
+   - Leverage context modeling
+
+4. **Environmental Robustness**:
+   - Apply domain adaptation techniques
+   - Consider condition-specific fine-tuning
+   - Implement image enhancement preprocessing
+
+### Implementation and Visualization
+The evaluation code and visualization tools are available in the repository:
+- Quantitative evaluation scripts in `evaluation/`
+- Visualization code in `visualization/`
+- Example detection visualizations in `assets/`
+
+All detailed evaluation results are documented in separate markdown files:
+- `quantitative_performance.md`: Comprehensive metrics and statistics
+- `qualitative_analysis.md`: Patterns and failure case analysis
+- `evaluation_summary.md`: Integrated findings and recommendations
 
 ## Getting Started
 (Additional setup instructions will be provided in subsequent updates) 
