@@ -1,10 +1,11 @@
 # BDD100K Object Detection Project
 
 ## Project Overview
-This project focuses on object detection using the Berkeley Deep Drive (BDD100k) dataset, which includes 100,000 images with corresponding labels for 10 detection classes. The project is structured around two main tasks:
+This project focuses on object detection using the Berkeley Deep Drive (BDD100k) dataset, which includes 100,000 images with corresponding labels for 10 detection classes. The project is structured around three main tasks:
 
 1. Data Analysis
-2. Evaluation and Visualization
+2. Model Selection and Implementation
+3. Evaluation and Visualization
 
 ## Task 1: Data Analysis
 
@@ -61,114 +62,58 @@ The data analysis is implemented in `data_analysis.py` and packaged in a Docker 
 
 ## Task 3: Evaluation and Visualization
 
-### Evaluation Approach
-We conducted a comprehensive evaluation of the Faster R-CNN R50-FPN model on the full BDD100K validation set (10,000 images) using:
+### Objective
+This task evaluates the performance of a chosen object detection model (Faster R-CNN R50-FPN 1x) on the BDD100K validation dataset (10,000 images). The evaluation includes quantitative metrics, qualitative analysis of predictions, and connections to the initial data analysis findings.
 
-1. **Official Evaluation Metrics**: Standard detection metrics at IoU threshold of 0.5
-2. **Statistical Analysis**: Detection counts, class distribution, and confidence scores
-3. **Visual Inspection**: Systematic analysis of detection visualizations
-4. **Comparative Analysis**: Connecting model performance to data analysis findings
+### Model Evaluated
+- **Model**: Faster R-CNN with ResNet-50 backbone and FPN (Feature Pyramid Network)
+- **Training**: Pre-trained on COCO, fine-tuned for 1x schedule (details assumed standard for the model).
 
-### Quantitative Performance
+### Key Evaluation Findings
 
-#### Overall Metrics
-- **Mean Average Precision (mAP)**: 0.1916
-- **Overall Precision**: 0.3696
-- **Overall Recall**: 0.7666
-- **True Positives**: 130,943
-- **False Positives**: 223,320
-- **False Negatives**: 39,862
+#### Quantitative Performance (IoU Threshold = 0.5)
+- **Mean Average Precision (mAP)**: **0.1916**. This indicates moderate overall performance with significant room for improvement.
+- **Precision vs. Recall**: The model shows high overall recall (0.7666) but low precision (0.3696), resulting from a large number of false positives (223,320) compared to true positives (130,943).
+- **Per-Category Performance**:
+    - **Best Performing**: `car` (AP=0.3868), `traffic sign` (AP=0.2658), `traffic light` (AP=0.2464). Performance strongly correlates with class frequency in the dataset.
+    - **Poorly Performing**: `pedestrian`, `motorcycle`, `bicycle`, `train` all achieved AP=0.0000. This highlights the severe impact of class imbalance and potential class confusion issues. `train` had no detections at all.
+- **Detection Statistics**:
+    - Average detections per image: 17.07.
+    - Detections dominated by `car` (59.55%).
+    - Confidence scores show a bimodal distribution, peaking at very high (≥0.9) and low (0.3-0.4) values.
 
-The considerable gap between recall and precision indicates the model tends to generate many false positives.
+#### Qualitative Analysis
+Visual inspection revealed several patterns:
+- **Successes**: Good detection of clearly visible cars, traffic signs, and traffic lights in favorable conditions (daytime, clear weather).
+- **Common Failures**:
+    - **False Positives**: Reflections, shadows, confusion between similar objects (e.g., trucks vs. buses).
+    - **False Negatives**: Heavily occluded objects (>50% occlusion often missed), objects at image boundaries, rare classes (especially in challenging conditions), small/distant objects.
+    - **Class Confusion**: Significant issues differentiating pedestrians, riders, and potentially bicycles/motorcycles.
+- **Environmental Impact**: Performance degrades noticeably in nighttime scenes and adverse weather (rain, snow).
 
-#### Per-Category Performance
-The model shows significant performance variation across categories:
+#### Connection to Data Analysis
+- **Class Imbalance**: The model's performance directly mirrors the class distribution identified in Task 1. The dominance of cars and the rarity of other classes heavily influence detection rates and AP scores.
+- **Occlusion**: The difficulty in detecting occluded objects aligns with the data analysis finding that ~47% of objects in the dataset are occluded.
 
-| Class | AP | Precision | Recall |
-|-------|------|-----------|--------|
-| car | 0.3868 | 0.4591 | 0.8424 |
-| traffic sign | 0.2658 | 0.3565 | 0.7454 |
-| traffic light | 0.2464 | 0.4893 | 0.5035 |
-| truck | 0.1761 | 0.2205 | 0.7986 |
-| bus | 0.1332 | 0.1724 | 0.7727 |
-| rider | 0.1329 | 0.2114 | 0.6287 |
-| pedestrian | 0.0000 | 0.0000 | 0.0000 |
-| motorcycle | 0.0000 | 0.0000 | 0.0000 |
-| bicycle | 0.0000 | 0.0000 | 0.0000 |
-| train | 0.0000 | 0.0000 | 0.0000 |
+### Visualization
+Key visualizations summarizing the quantitative analysis include:
+- Class distribution of detections: ![Class Distribution](bdd100k-models/det/assets/class_distribution.png)
+- Average confidence score per class: ![Average Confidence by Class](bdd100k-models/det/assets/avg_score_by_class.png)
+- Overall confidence score distribution: ![Confidence Score Distribution](bdd100k-models/det/assets/score_distribution.png)
+- Distribution of detections per image: ![Detections per Image](bdd100k-models/det/assets/detections_per_image.png)
 
-Performance directly correlates with class frequency in the dataset, with best results for common classes (car, traffic sign, traffic light) and poorest for rare classes.
+*(Note: Visualizations of ground truth vs. predictions showing specific success/failure cases are typically generated by accompanying scripts, e.g., `visualize_predictions.py` mentioned in the qualitative report).*
 
-#### Detection Statistics
-- **Total Detections (score ≥ 0.3)**: 170,662 across 10,000 images
-- **Average Detections per Image**: 17.07
-- **Confidence Distribution**: 44.6% of detections with confidence ≥ 0.9, showing a bimodal pattern with peaks at very high confidence (0.9+) and at lower threshold (0.3-0.4)
+### Summary and Potential Improvements
+- **Strengths**: High recall for common objects, handles varying scene density.
+- **Weaknesses**: Low precision (many false positives), severe performance issues on rare classes, sensitivity to occlusion and environmental conditions.
+- **Suggestions**: Address class imbalance (e.g., weighted loss, augmentation), improve precision (e.g., threshold tuning, hard negative mining), implement occlusion handling techniques, enhance environmental robustness (e.g., domain adaptation).
 
-### Qualitative Analysis
-
-#### Successful Detection Patterns
-1. **Clearly Visible Cars**: Excellent detection of unoccluded cars
-2. **Traffic Signs and Lights**: Reliable detection even at moderate distances
-3. **Larger Vehicles**: High recall for trucks and buses, albeit with significant false positives
-
-#### Common Failure Cases
-1. **Occlusion**: Heavily occluded objects frequently missed or detected with low confidence
-2. **Small Objects**: Difficulty detecting distant pedestrians, motorcycles, and bicycles
-3. **Nighttime Scenes**: Reduced performance in low-light conditions
-4. **Class Confusion**: Confusion between similar classes (e.g., car vs. truck, pedestrian vs. rider)
-5. **Environmental Challenges**: Performance degradation in adverse weather conditions
-
-#### Performance Across Conditions
-- **Best Performance**: Daytime, clear weather, city street scenes
-- **Moderate Performance**: Dusk/dawn, overcast conditions, highway scenes
-- **Poorest Performance**: Nighttime, adverse weather (rain/snow), residential areas with occlusions
-
-### Connection to Data Analysis Findings
-
-The evaluation results strongly align with our data analysis findings:
-
-1. **Class Imbalance Impact**: The model's AP values directly correlate with class frequencies identified in our data analysis. Cars (most frequent at >55%) achieve the highest AP (0.3868), while rare classes show extremely poor performance.
-
-2. **Occlusion Effects**: Our data analysis found that 47% of objects are occluded, and the model indeed struggles with occluded objects, contributing to the 39,862 false negatives.
-
-3. **Environmental Conditions**: The model performs best in the most common conditions identified in our analysis (clear weather, daytime, city streets) and degrades in less represented conditions.
-
-4. **Object Size Challenges**: The data analysis highlighted the small pixel area of certain object classes, which corresponds to detection difficulties for smaller objects like traffic signs and distant pedestrians.
-
-### Improvement Suggestions
-
-Based on our evaluation, we recommend several approaches to enhance model performance:
-
-1. **Addressing Class Imbalance**:
-   - Implement class-weighted loss functions
-   - Apply targeted data augmentation for rare classes
-   - Consider two-stage training strategy (balanced subset, then full dataset)
-
-2. **Improving Precision**:
-   - Optimize confidence thresholds per class
-   - Implement hard negative mining
-   - Refine non-maximum suppression parameters
-
-3. **Enhancing Occlusion Handling**:
-   - Incorporate occlusion-aware model architectures
-   - Add attention mechanisms for partially visible objects
-   - Leverage context modeling
-
-4. **Environmental Robustness**:
-   - Apply domain adaptation techniques
-   - Consider condition-specific fine-tuning
-   - Implement image enhancement preprocessing
-
-### Implementation and Visualization
-The evaluation code and visualization tools are available in the repository:
-- Quantitative evaluation scripts in `evaluation/`
-- Visualization code in `visualization/`
-- Example detection visualizations in `assets/`
-
-All detailed evaluation results are documented in separate markdown files:
-- `quantitative_performance.md`: Comprehensive metrics and statistics
-- `qualitative_analysis.md`: Patterns and failure case analysis
-- `evaluation_summary.md`: Integrated findings and recommendations
+### Implementation Details
+The detailed evaluation reports and analysis can be found in the `bdd100k-models/det/` directory:
+- `quantitative_performance.md`
+- `qualitative_analysis.md`
+- `evaluation_summary.md`
 
 ## Getting Started
 (Additional setup instructions will be provided in subsequent updates) 
