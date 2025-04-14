@@ -72,13 +72,15 @@ This task evaluates the performance of a chosen object detection model (Faster R
 ### Key Evaluation Findings
 
 #### Quantitative Performance (IoU Threshold = 0.5)
-The model was evaluated on the BDD100K validation set using the standard detection metrics with an IoU threshold of 0.5.
+The model was evaluated on the BDD100K validation set using standard object detection metrics, specifically Mean Average Precision (mAP) with an IoU threshold of 0.5.
 
 **Official Evaluation Results:**
 
 | Metric | Value |
 |--------|-------|
 | Mean Average Precision (mAP) | **0.1916** |
+
+*This moderate mAP suggests reasonable baseline performance but indicates significant room for improvement.*
 
 **Per-Category Performance:**
 
@@ -96,10 +98,9 @@ The model was evaluated on the BDD100K validation set using the standard detecti
 | train | 0.0000 | 0.0000 | 0.0000 | 15 | 0 |
 
 *Key Insights from Metrics:*
-1.  **Overall Performance**: Moderate mAP (0.1916) indicates room for improvement.
-2.  **Class Imbalance Impact**: Best performance on common classes (car, traffic sign, traffic light).
-3.  **Precision vs. Recall Trade-off**: High recall but low precision for most classes, suggesting many false positives.
-4.  **Zero-AP Classes**: `pedestrian`, `motorcycle`, `bicycle`, `train` show AP=0, indicating potential evaluation issues or complete failure.
+1.  **Performance Hierarchy**: The model performs best on the most common classes found in Task 1 (car, traffic sign, traffic light), showing a clear correlation between data frequency and detection success.
+2.  **Precision vs. Recall**: Most classes exhibit high recall but low precision, indicating the model finds many relevant objects but also generates numerous false positives.
+3.  **Rare Class Failures**: Classes rare in the dataset (`pedestrian`, `motorcycle`, `bicycle`, `train`) achieve an AP of 0. This points to challenges with class imbalance or potential evaluation issues (e.g., significant class confusion, especially for `pedestrian` which had many predictions but 0 AP).
 
 **Overall Detection Statistics:**
 
@@ -113,7 +114,7 @@ The model was evaluated on the BDD100K validation set using the standard detecti
 | Overall recall | 0.7666 |
 | Overall precision | 0.3696 |
 
-*Note: The high number of false positives confirms the tendency to over-predict.*
+*The high number of false positives (223,320) compared to true positives (130,943) confirms the model's tendency towards over-prediction, leading to low overall precision.*
 
 **Detection Performance Overview:**
 
@@ -125,7 +126,7 @@ The model was evaluated on the BDD100K validation set using the standard detecti
 | Median Detections per Image | 17.00 |
 | Maximum Detections per Image | 56 |
 
-*Note: Substantial detections per image reflect scene complexity.*
+*The model detects a substantial number of objects per image (avg. 17.07), reflecting the complexity of BDD100K street scenes.*
 
 **Class Distribution of Detections:**
 
@@ -144,7 +145,7 @@ The model was evaluated on the BDD100K validation set using the standard detecti
 
 ![Class Distribution](assets/class_distribution.png)
 
-*Note: Detection distribution closely mirrors class imbalance.*
+*The distribution of detected objects closely mirrors the class imbalance noted in Task 1, with 'car' detections dominating.*
 
 **Confidence Score Analysis:**
 
@@ -162,79 +163,60 @@ The model was evaluated on the BDD100K validation set using the standard detecti
 
 ![Confidence Score Distribution](assets/score_distribution.png)
 
-*Note: Bimodal distribution with peaks at high (≥0.9) and low (0.3-0.4) confidence.*
+*Confidence scores show a bimodal distribution, with many detections being either very high confidence (≥0.9) or near the lower threshold (0.3-0.4). This might indicate the model is often either very certain or quite uncertain.*
 
 **Detection Density Distribution:**
 
 ![Detections per Image](assets/detections_per_image.png)
 
-*Note: Considerable variation in detections per image reflects scene diversity.*
+*Detection counts per image vary considerably, showing the model is exposed to both sparse and dense scenes.*
 
 #### Qualitative Analysis
-Based on visual inspection of predictions (using a confidence threshold of 0.5) and comparison with ground truth, several patterns and failure modes were identified:
+Visual inspection of predictions (using a confidence threshold of 0.5) compared to ground truth reveals several key patterns:
 
 **Common Detection Patterns:**
 
 *   **Successful Detections:**
-    *   **Clearly Visible Cars**: Very good performance, aligning with high quantitative AP (0.3868) and recall (0.8424).
-    *   **Traffic Signs and Lights**: Generally reliable detection, even at moderate distances (AP=0.2658 and 0.2464).
-    *   **Larger Vehicles (Trucks, Buses)**: High recall achieved (0.7986 for trucks, 0.7727 for buses), but precision is low due to many false positives.
+    *   *Clearly Visible Cars*: Performs well, aligning with high quantitative metrics.
+    *   *Traffic Signs and Lights*: Generally reliable, even at moderate distances.
+    *   *Larger Vehicles (Trucks, Buses)*: Achieves high recall, but low precision due to frequent false positives.
 
 *   **Challenging Scenarios:**
-    *   **Occlusion**: Partially occluded objects are often missed or detected with lower confidence.
-    *   **Small Objects**: Very small instances (distant pedestrians, signs, lights) are sometimes missed.
-    *   **Nighttime Scenes**: Performance degradation observed, especially for smaller objects.
-    *   **Rare Classes**: Motorcycles, riders, bicycles show poor performance. Trains were not detected at all.
-    *   **Class Confusion**: Zero AP for pedestrians (despite many predictions) suggests significant confusion, likely with riders.
+    *   *Occlusion*: Struggles with partially occluded objects (often missed or low confidence), aligning with the Task 1 finding that ~47% of dataset objects are occluded.
+    *   *Small Objects*: Sometimes misses small instances (distant pedestrians, signs, lights).
+    *   *Nighttime Scenes*: Performance degrades, particularly for smaller objects.
+    *   *Rare Classes*: Poor performance for motorcycles, riders, bicycles; no detections for trains.
+    *   *Class Confusion*: Significant confusion suspected (e.g., pedestrians vs. riders).
 
 **Observed Failure Cases:**
 
-*   **False Positives:**
-    *   **Reflections**: Reflections on wet roads mistaken for objects.
-    *   **Shadows**: Dark shadows misidentified (e.g., as pedestrians).
-    *   **Similar Objects**: Confusion between classes like trucks and buses.
-    *   **Threshold Effects**: Bimodal confidence distribution suggests low-confidence detections might contribute significantly to false positives if the threshold is low.
-
-*   **False Negatives:**
-    *   **Heavy Occlusion**: Objects occluded >50% are frequently missed.
-    *   **Image Boundaries**: Partially truncated objects sometimes missed.
-    *   **Unusual Angles**: Objects viewed from uncommon angles (head-on, directly behind) can be missed.
-    *   **Rare Classes in Challenging Conditions**: Bicycles/motorcycles often missed in difficult lighting/weather.
+*   **False Positives:** Reflections, shadows, confusion between similar objects (trucks/buses), and potentially many low-confidence detections.
+*   **False Negatives:** Heavily occluded objects (>50%), objects at image boundaries, objects at unusual viewing angles, and rare classes in challenging conditions.
 
 **Performance Across Different Conditions:**
 
-*   **Lighting:**
-    *   *Daytime*: Best performance.
-    *   *Dusk/Dawn*: Slight degradation.
-    *   *Nighttime*: Reduced performance, especially lower recall (except for well-lit vehicles/lights).
-*   **Weather:**
-    *   *Clear*: Best performance.
-    *   *Overcast*: Slight degradation.
-    *   *Rainy*: Moderate degradation, potential for reflection-based false positives.
-    *   *Snowy*: More significant degradation.
-*   **Scene Types:**
-    *   *Highway*: Good vehicle detection, potential misses for distant/small objects.
-    *   *City Street*: Best overall performance.
-    *   *Residential*: Good performance, potential misses for occluded objects.
+*   **Lighting:** Best in daytime, slight degradation at dusk/dawn, reduced performance at night.
+*   **Weather:** Best in clear conditions, slight degradation in overcast, moderate issues in rain (reflections), significant degradation in snow.
+*   **Scene Types:** Best overall in city streets (most common scene type from Task 1), good vehicle detection on highways but misses smaller objects, reasonable in residential areas but struggles with occlusion.
 
-#### Connection to Data Analysis Findings
-The evaluation results strongly correlate with the data analysis findings from Task 1:
-
-*   **Class Imbalance**:
-    *   *Data Finding*: The 'car' class dominates the dataset (>55%), while classes like 'train', 'motor', 'rider', and 'bike' are rare (<1%).
-    *   *Impact on Model*: AP values directly correlate with class frequency. Cars have the highest AP (0.3868), while rare classes show extremely poor performance (AP=0.0000).
-
-*   **Object Attributes**:
-    *   *Data Finding*: ~47% of objects are marked as occluded, 7% truncated.
-    *   *Impact on Model*: Significant false negatives (39,862) are largely attributable to occlusion/truncation, confirmed qualitatively.
-
-*   **Environmental Conditions**:
-    *   *Data Finding*: Dominated by 'clear' weather (53%) and balanced 'daytime' (53%)/'night' (40%).
-    *   *Impact on Model*: Qualitative analysis confirms performance degradation in nighttime/adverse weather, contributing to the moderate mAP.
-
-*   **Scene Type Distribution**:
-    *   *Data Finding*: 'City street' scenes dominate (61-62%), followed by 'highway' (25%) and 'residential' (12%).
-    *   *Impact on Model*: Best performance in dominant city street settings, some degradation in highway scenes (smaller objects).
+- #### Connection to Data Analysis Findings
+- The evaluation results strongly correlate with the data analysis findings from Task 1:
+-
+- *   **Class Imbalance**:
+-     *   *Data Finding*: The 'car' class dominates the dataset (>55%), while classes like 'train', 'motor', 'rider', and 'bike' are rare (<1%).
+-     *   *Impact on Model*: AP values directly correlate with class frequency. Cars have the highest AP (0.3868), while rare classes show extremely poor performance (AP=0.0000).
+-
+- *   **Object Attributes**:
+-     *   *Data Finding*: ~47% of objects are marked as occluded, 7% truncated.
+-     *   *Impact on Model*: Significant false negatives (39,862) are largely attributable to occlusion/truncation, confirmed qualitatively.
+-
+- *   **Environmental Conditions**:
+-     *   *Data Finding*: Dominated by 'clear' weather (53%) and balanced 'daytime' (53%)/'night' (40%).
+-     *   *Impact on Model*: Qualitative analysis confirms performance degradation in nighttime/adverse weather, contributing to the moderate mAP.
+-
+- *   **Scene Type Distribution**:
+-     *   *Data Finding*: 'City street' scenes dominate (61-62%), followed by 'highway' (25%) and 'residential' (12%).
+-     *   *Impact on Model*: Best performance in dominant city street settings, some degradation in highway scenes (smaller objects).
 
 ### Visualization
 - Key visualizations summarizing the quantitative analysis include:
@@ -248,46 +230,30 @@ The evaluation results strongly correlate with the data analysis findings from T
 ### Summary and Potential Improvements
 
 **Overall Conclusion:**
-The Faster R-CNN R50-FPN 1x model shows moderate overall performance (mAP=0.1916). It exhibits a strong bias towards common classes (cars, traffic signs, lights) and struggles significantly with rare classes and challenging scenarios (occlusion, nighttime, adverse weather). The key limitation is the precision-recall trade-off, favoring high recall (0.7666) over precision (0.3696), leading to numerous false positives. The evaluation underscores the critical impact of dataset characteristics like class imbalance and occlusion.
+The evaluation shows the Faster R-CNN R50-FPN 1x model achieves moderate baseline performance (mAP=0.1916) on the BDD100K validation set. Its effectiveness is strongly influenced by dataset characteristics identified in Task 1, particularly class imbalance and occlusion. The model reliably detects common objects like cars in good conditions but struggles significantly with rare classes and challenging scenarios (e.g., night, rain, occlusion). A key limitation is the tendency to produce many false positives, resulting in high recall but low precision.
 
 **Summary of Strengths & Weaknesses:**
 
 *   **Strengths:**
-    1.  Strong detection of common classes (Cars AP=0.3868, Traffic Signs AP=0.2658, Traffic Lights AP=0.2464).
-    2.  High recall for most detected classes (>0.70 for cars, signs, trucks, buses).
-    3.  Good adaptability to common conditions (daytime, clear weather, city streets).
-    4.  Effective handling of varying object density.
+    1.  Strong detection of common classes (Cars, Traffic Signs, Traffic Lights).
+    2.  High recall for many object types.
+    3.  Adapts well to common conditions (daytime, clear weather, city streets).
+    4.  Handles varying object densities in scenes.
 
 *   **Weaknesses:**
-    1.  Low overall precision (0.3696) due to high false positives.
-    2.  Severe performance degradation for rare classes (AP=0 for pedestrian, motorcycle, bicycle, train).
-    3.  Struggles with heavily occluded objects.
-    4.  Reduced robustness in challenging lighting/weather conditions.
-    5.  Difficulty detecting small or distant objects.
+    1.  Low precision due to numerous false positives.
+    2.  Poor performance on rare classes.
+    3.  Difficulty with heavily occluded objects.
+    4.  Reduced robustness in challenging lighting/weather.
+    5.  Misses small or distant objects.
 
 **Suggestions for Improvement:**
+Based on the analysis, several avenues could lead to better performance:
 
-*   **Addressing Class Imbalance:**
-    1.  *Class-weighted Loss*: Apply higher weights to rare classes.
-    2.  *Data Augmentation*: Increase samples for rare classes.
-    3.  *Two-stage Training*: Train on balanced subset, then fine-tune.
-    4.  *Focal Loss*: Focus training on hard examples.
-
-*   **Improving Precision:**
-    1.  *Confidence Threshold Tuning*: Optimize per class based on P-R curves.
-    2.  *Hard Negative Mining*: Reduce false positives during training.
-    3.  *Post-processing Refinement*: Optimize NMS parameters.
-    4.  *Ensemble Methods*: Combine models for consensus.
-
-*   **Improving Occlusion Handling:**
-    1.  *Occlusion-aware Models*: Use specific architectural modifications.
-    2.  *Attention Mechanisms*: Focus on partially visible parts.
-    3.  *Context Modeling*: Infer objects using surrounding context.
-
-*   **Enhancing Environmental Robustness:**
-    1.  *Domain Adaptation*: Improve performance across different conditions.
-    2.  *Condition-specific Fine-tuning*: Train separate models/branches.
-    3.  *Image Enhancement*: Pre-process images from challenging conditions.
+*   **Addressing Class Imbalance:** Techniques like using class-weighted loss functions, augmenting data for rare classes, employing two-stage training, or implementing focal loss could help the model learn representations for less frequent objects.
+*   **Improving Precision:** Optimizing confidence thresholds per class, incorporating hard negative mining, refining post-processing (like NMS), or exploring ensemble methods could reduce false positives.
+*   **Improving Occlusion Handling:** Using occlusion-aware model architectures, attention mechanisms, or context modeling might improve detection when objects are partially hidden.
+*   **Enhancing Environmental Robustness:** Domain adaptation techniques, condition-specific fine-tuning, or image enhancement pre-processing could make the model less sensitive to variations in lighting and weather.
 
 ### Implementation Details
 The detailed evaluation reports and analysis can be found in the `bdd100k-models/det/` directory:
