@@ -100,7 +100,7 @@ This perspective highlights potential biases in evaluation metrics influenced by
 </table>
 
 ### Implementation
-The data analysis is implemented in `data_analysis.py` and packaged in a Docker container for reproducibility.
+The data analysis is implemented in [`data_analysis.py`](./data_analysis.py) and packaged in a Docker container for reproducibility.
 
 ## Task 2: Model Selection and Implementation
 
