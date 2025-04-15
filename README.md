@@ -102,6 +102,28 @@ This perspective highlights potential biases in evaluation metrics influenced by
 ### Implementation
 The data analysis is implemented in [`data_analysis.py`](./data_analysis.py) and packaged in a Docker container for reproducibility.
 
+#### Running the Data Analysis with Docker
+
+To run the data analysis script within a Docker container, follow these steps:
+
+1.  **Ensure Docker is installed.**
+2.  **Build the Docker image:** Navigate to the project's root directory (where the `Dockerfile` is located) in your terminal and run:
+    ```bash
+    docker build -t bdd100k-analysis .
+    ```
+3.  **Run the Docker container:**
+    *   You need to mount the directory containing the BDD100K dataset (`data`) and an output directory for the generated plots (`assets`).
+    *   Replace `/path/to/your/bdd100k/data` with the absolute path to the `data` directory containing `bdd100k_labels_release` and `bdd100k_images_100k`.
+    *   Replace `/path/to/your/output/assets` with the absolute path where you want the plots (e.g., `assets/class_distribution_train.png`) to be saved. Make sure this directory exists.
+    ```bash
+    docker run --rm \\
+      -v /path/to/your/bdd100k/data:/app/data:ro \\
+      -v /path/to/your/output/assets:/app/assets \\
+      bdd100k-analysis
+    ```
+    *   The `:ro` flag for the data volume makes it read-only within the container, which is good practice.
+    *   The script will execute, load the labels from the mounted `data` directory, perform the analysis, print logs to the console, and save the generated plots to the mounted `assets` directory on your host machine.
+
 ## Task 2: Model Selection and Implementation
 
 *This section details the model selection, justification, and implementation aspects for Task 2.*
