@@ -6,4 +6,8 @@ assets/**
 .cursor/**
 
 # extensions
-*.pth 
+*.pth
+
+# files
+plan.md
+ 
