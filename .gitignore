@@ -3,7 +3,7 @@ data/**
 .vscode/**
 __pycache__/**
 assets/**
-
+.cursor/**
 
 # extensions
 *.pth 
