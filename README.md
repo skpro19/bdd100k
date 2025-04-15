@@ -124,6 +124,14 @@ To run the data analysis script within a Docker container, follow these steps:
     *   The `:ro` flag for the data volume makes it read-only within the container, which is good practice.
     *   The script will execute, load the labels from the mounted `data` directory, perform the analysis, print logs to the console, and save the generated plots to the mounted `assets` directory on your host machine.
 
+    **Example for your specific setup (requires `sudo` based on previous run):**
+    ```bash
+    sudo docker run --rm \\
+      -v /media/skumar/External/bdd100k/data:/app/data:ro \\
+      -v /media/skumar/External/bdd100k/assets:/app/assets \\
+      bdd100k-analysis
+    ```
+
 ## Task 2: Model Selection and Implementation
 
 *This section details the model selection, justification, and implementation aspects for Task 2.*
